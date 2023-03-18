@@ -1,0 +1,111 @@
+﻿<UserControl x:Class="Airfare.Views.UserControls.RoomView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Airfare.Views.UserControls"
+             xmlns:vm="clr-namespace:Airfare.ViewModels.UserControlViewModels"
+             xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             mc:Ignorable="d" 
+             x:Name="RoomsUI"
+             FlowDirection="RightToLeft"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:cv="clr-namespace:Airfare.Converters"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <vm:RoomViewModel/>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <cv:BoolToCollapsConverter x:Key="BoolToCollaps"/>
+    </UserControl.Resources>
+    <TabControl Background="Transparent" >
+        <TabItem FontSize="18" Background="Transparent" >
+            <TabItem.Header>
+                <TextBlock Text="الغرف" Foreground="#283BB9"/>
+            </TabItem.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <!-- Rooms Data Grid -->
+                <Border CornerRadius="15" BorderThickness="0" Background="#eef" Grid.Column="0" Margin="10"  Padding="20"  >
+                    <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                        <Grid>
+                            <DataGrid Grid.Column="0" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" HeadersVisibility="All" SelectionMode="Single" AutoGenerateColumns="False" ItemsSource="{Binding RoomsList}" SelectedItem="{Binding SelectedRoom}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn FontSize="15" Width="1*" Binding="{Binding Type}" Header="النوع"/>
+                                    <DataGridTextColumn FontSize="15" Width="1*" Binding="{Binding Capacity}" Header="السعة"/>
+                                    <DataGridTemplateColumn  Width="80">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Cursor="Hand" BorderBrush="Black" hc:BorderElement.CornerRadius="15" Command="{Binding Path=DataContext.UpdateRoomCommand, ElementName=RoomsUI }" hc:IconElement.Geometry="{StaticResource update}" hc:IconElement.Height="13">
+                                                    <hc:Poptip.Instance>
+                                                        <hc:Poptip Content="تعديل" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-55"/>
+                                                    </hc:Poptip.Instance>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Width="80">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Cursor="Hand" BorderBrush="Black" hc:BorderElement.CornerRadius="15" Command="{Binding Path=DataContext.RemoveRoomCommand, ElementName=RoomsUI }" hc:IconElement.Geometry="{StaticResource delete}" hc:IconElement.Height="13">
+                                                    <hc:Poptip.Instance>
+                                                        <hc:Poptip Content="إزالة" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-55"/>
+                                                    </hc:Poptip.Instance>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <hc:LoadingLine Grid.Column="0" Visibility="{Binding LoadingLine,Converter={StaticResource BoolToCollaps}}" Margin="0,16"/>
+                        </Grid>
+                    </hc:TransitioningContentControl>
+                </Border>
+                <Image Grid.Column="1" VerticalAlignment="Bottom" Source="/Assets/Waiting-rafiki.png"/>
+            </Grid>
+        </TabItem>
+        <TabItem FontSize="18" Background="Transparent" >
+            <TabItem.Header>
+                <TextBlock Text="إضافة غرفة" Foreground="#283BB9"/>
+            </TabItem.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <!-- Room Information -->
+
+                <Border CornerRadius="15" BorderThickness="0" Background="#eef" Grid.Column="0" Margin="10"  Grid.Row="0" Padding="20"  >
+                    <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBox  FontSize="20" Text="{Binding Room.Type}" Grid.Row="0" Margin="5" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="النوع" VerticalAlignment="Center"/>
+                            <TextBox  FontSize="20" Text="{Binding Room.Capacity}" Grid.Row="1" Margin="5" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="السعة" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="2" Margin="5">
+                                <TextBlock FontSize="20" Text="اللون" Margin="10 10 0 10"/>
+                                <mah:ColorPicker BorderBrush="Black" FontSize="15" SelectedColor="{Binding Room.Color}"  mah:IsColorPalettesTabVisible="False"/>
+                            </StackPanel>
+                            <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Grid.Row="3" HorizontalAlignment="Right" Margin="16,0" >
+                                <Button Cursor="Hand" BorderBrush="Black" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource door}" Command="{Binding AddRoomCommand}" hc:IconElement.Height="17">
+                                    <hc:Poptip.Instance>
+                                        <hc:Poptip Content="اضف غرفة" BorderBrush="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="45"/>
+                                    </hc:Poptip.Instance>
+                                </Button>
+                                <hc:LoadingCircle Visibility="{Binding LoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="10,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </hc:TransitioningContentControl>
+                </Border>
+                <Image Grid.Column="1" VerticalAlignment="Bottom" Source="/Assets/Waiting-rafiki.png"/>
+            </Grid>
+        </TabItem>
+    </TabControl>
+</UserControl>

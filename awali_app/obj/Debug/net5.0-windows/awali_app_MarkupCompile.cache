@@ -1,0 +1,20 @@
+﻿awali_app
+
+
+winexe
+C#
+.cs
+C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\obj\Debug\net5.0-windows\
+awali_app
+none
+false
+TRACE;DEBUG;NET;NET5_0;NETCOREAPP
+C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\App.xaml
+20-1912019634
+
+110-1314603950
+270-807833932
+Assets\Icons.xaml;Styles\MainStyle.xaml;Themes\LightTheme.xaml;Views\Dialogs\ClientDialog.xaml;Views\Dialogs\CompanyDialog.xaml;Views\Dialogs\FlightDialog.xaml;Views\Dialogs\HotelDialog.xaml;Views\Dialogs\RoomDialog.xaml;Views\Dialogs\SeasonDialog.xaml;Views\Dialogs\YesNoDialog.xaml;Views\UserControls\BillingView.xaml;Views\UserControls\ClientsView.xaml;Views\UserControls\DashboardView.xaml;Views\UserControls\FlightView.xaml;Views\UserControls\HotelView.xaml;Views\UserControls\ReservationView.xaml;Views\UserControls\RoomView.xaml;Views\UserControls\SeasonsView.xaml;Views\UserControls\SettingsView.xaml;Views\Windows\MainWindow.xaml;
+
+False
+

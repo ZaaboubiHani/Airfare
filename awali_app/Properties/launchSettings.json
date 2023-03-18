@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Airfare": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

@@ -1,0 +1,35 @@
+﻿<Window x:Class="Installer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Installer" xmlns:vm="clr-namespace:Installer.ViewModels"
+        xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Title="MainWindow" Height="650" Width="400">
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <StackPanel VerticalAlignment="Center">
+            <Image Source="/Icons/logo" Height="180" />
+
+            
+            
+        </StackPanel>
+        <Grid VerticalAlignment="Bottom" MinHeight="100">
+            <StackPanel HorizontalAlignment="Center" Visibility="{c:Binding !Checkingliability}">
+               
+                <Button Visibility="{c:Binding Installable}" FontSize="20" Margin="15" Height="50" Width="100" Content="Install" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding InstallCommand}" />
+                <Button Visibility="{c:Binding !Installable}" FontSize="20" Margin="15" Height="50" Width="100" Content="Uninstall" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding UninstallCommand}" />
+                <Button FontSize="20" Margin="15" Height="50" Width="100" Content="Update" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding UpdateCommand}" />
+
+                <TextBlock HorizontalAlignment="Center" Margin="15" FontSize="15" Text="{Binding DiscoveryMessage}"/>
+            </StackPanel>
+            <hc:LoadingCircle Visibility="{c:Binding Checkingliability}" VerticalAlignment="Center" HorizontalAlignment="Center"></hc:LoadingCircle>
+        </Grid>
+    </Grid>
+</Window>

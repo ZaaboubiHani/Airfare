@@ -1,0 +1,414 @@
+﻿<UserControl x:Class="Airfare.Views.UserControls.HotelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Airfare.Views.UserControls" 
+             xmlns:hc="https://handyorg.github.io/handycontrol" 
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:vm="clr-namespace:Airfare.ViewModels.UserControlViewModels"
+             xmlns:m="clr-namespace:Airfare.Models"
+             xmlns:cv="clr-namespace:Airfare.Converters"
+             xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+             mc:Ignorable="d" 
+             x:Name="HotelUI"
+             d:DesignHeight="450" 
+             d:DesignWidth="800">
+    <UserControl.DataContext>
+        <vm:HotelViewModel/>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <cv:BoolToCollapsConverter x:Key="BoolToCollaps"/>
+        <cv:BoolToGenderConverter x:Key="BoolToGender"/>
+        <cv:ReverseBoolToCollapsConverter x:Key="ReverseBoolToCollaps"/>
+        <cv:StartAtOne x:Key="StartAtOne"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width=".3*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <GroupBox BorderThickness="0" Background="#eef" Grid.Row="0" Grid.ColumnSpan="2" hc:BorderElement.CornerRadius="20" Style="{StaticResource GroupBoxTab}" Margin="10" FontSize="20" Header="المعتمرين" Padding="10">
+            <Border BorderThickness="0" Background="{DynamicResource RegionBrush}" CornerRadius="4">
+                <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+                    
+                
+                <StackPanel FlowDirection="RightToLeft" >
+                        <Grid>
+                            
+                    <ListBox ItemContainerStyle="{StaticResource VerticalListBoxItemStyle}" FontSize="20" BorderBrush="Black" Height="42" ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}" Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="5,2">
+
+                                    <TextBlock Text="{Binding}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                            <hc:LoadingLine Visibility="{c:Binding LoadingData}"/>
+                        </Grid>
+                    <ListBox ItemContainerStyle="{StaticResource VerticalListBoxItemStyle}" FontSize="20" BorderBrush="Black" Height="42" ItemsSource="{Binding SelectedFlights}" SelectedItem="{Binding SelectedFlight}" Margin="10,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="5,2">
+
+                                    <TextBlock Text="{Binding}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+                </hc:TransitioningContentControl>
+            </Border>
+        </GroupBox>
+        <GroupBox BorderThickness="0" Background="#eef" Grid.Column="0" hc:BorderElement.CornerRadius="20" Style="{StaticResource GroupBoxTab}" Grid.Row="1" Margin="10" Header="الفنادق" FontSize="20" Padding="10">
+            <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <!-- this listbox is for the roomtypes -->
+                    <ListBox IsEnabled="{c:Binding !SavingData}" ItemContainerStyle="{StaticResource ClickableListBoxItemStyle}" Margin="5" ItemsSource="{Binding RoomsList}" SelectedItem="{Binding SelectedRoom}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding Color}" CornerRadius="5">
+                                    <TextBlock Cursor="Hand" FontSize="15" Padding="15,5" Text="{Binding Type}"  x:Name="roomtypeListboxItem" MouseDown="roomtypeListboxItem_MouseDown"/>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TabControl IsEnabled="{c:Binding !SavingData}" Margin="5" Grid.Column="1" SelectionChanged="TabControl_SelectionChanged" Grid.Row="0" FontSize="15" FlowDirection="RightToLeft" ItemsSource="{Binding SelectedHotels}" SelectedIndex="-1" SelectedItem="{Binding SelectedHotel}">
+                        <TabControl.ItemTemplate >
+                            <!-- this is the header template -->
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <!-- this is the body of the TabItem template -->
+                            <DataTemplate>
+                                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding Path=DataContext.SpotsAndGroupsCollectionContainer,ElementName=HotelUI,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged }" >
+                                       
+                                        <ItemsControl.Resources>
+                                            <DataTemplate DataType="{x:Type m:SpotModel}">
+                                                <Border MouseDown="spotContainer_MouseDown" AllowDrop="{Binding IsEmpty}" x:Name="spotContainer" Drop="spotContainer_Drop" Padding="10" CornerRadius="10"  Margin="5" Background="{Binding Color}">
+                                                    <StackPanel>
+                                                        <TextBlock Foreground="Black" HorizontalAlignment="Center" Text="{Binding Number,StringFormat={} رقم الغرفة {0}}"/>
+                                                        <TextBlock Foreground="Black" HorizontalAlignment="Center">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding StringFormat="{}{1}/{0}">
+                                                                    <Binding Path="Capacity"/>
+                                                                    <Binding Path="Taken"/>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                        <ListBox ItemsSource="{Binding Hosts, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+                                                            <ListBox.ItemContainerStyle>
+                                                                <Style TargetType="ListBoxItem">
+                                                                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                                    <Setter Property="Padding" Value="0"/>
+                                                                    <Setter Property="Margin" Value="2"/>
+                                                                </Style>
+                                                            </ListBox.ItemContainerStyle>
+                                                            <ListBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Background="LightGray" >
+                                                                        <StackPanel Orientation="Horizontal" >
+                                                                            <Button Cursor="Hand" hc:IconElement.Geometry="{StaticResource close}" Click="RemoveHostFromSpotButton_Click" Margin="0,0,5,0" Background="Transparent" Height="20" Padding="0" Width="20" hc:IconElement.Height="7"/>
+                                                                            <iconPacks:PackIconMaterial Visibility="{Binding Client.Gender,Converter={StaticResource BoolToCollaps}}" VerticalAlignment="Center" Kind="FaceWoman" Margin="2"/>
+                                                                            <iconPacks:PackIconMaterial Visibility="{Binding Client.Gender,Converter={StaticResource ReverseBoolToCollaps}}" VerticalAlignment="Center" Kind="FaceMan" Margin="2"/>
+                                                                            <TextBlock VerticalAlignment="Center" Padding="5" FlowDirection="RightToLeft">
+                                                                        <Run Text="{Binding Client.FirstName}"/>
+                                                                        <Run Text="{Binding Client.LastName}"/>
+                                                                            </TextBlock>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ListBox.ItemTemplate>
+                                                        </ListBox>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type m:GroupModel}">
+                                                <Border x:Name="groupContainer" MouseDown="groupContainer_MouseDown" Background="Transparent"  BorderBrush="{Binding Color}" BorderThickness="5" Padding="10" CornerRadius="10"  Margin="5">
+                                                    <StackPanel>
+                                                        <ItemsControl  ItemsSource="{Binding Spots}" >
+                                                            <ItemsControl.Resources>
+                                                                <DataTemplate DataType="{x:Type m:SpotModel}">
+                                                                    <Border MouseDown="spotContainer_MouseDown" AllowDrop="{Binding IsEmpty}" x:Name="spotContainer" Drop="spotContainer_Drop" Padding="10" CornerRadius="10"  Margin="5" Background="{Binding Color}">
+                                                                        <StackPanel>
+                                                                            <TextBlock Foreground="Black" HorizontalAlignment="Center" Text="{Binding Number,StringFormat={} رقم الغرفة {0}}"/>
+                                                                            <TextBlock Foreground="Black" HorizontalAlignment="Center">
+                                                                                <TextBlock.Text>
+                                                                                    <MultiBinding StringFormat="{}{1}/{0}">
+                                                                                        <Binding Path="Capacity"/>
+                                                                                        <Binding Path="Taken"/>
+                                                                                    </MultiBinding>
+                                                                                </TextBlock.Text>
+                                                                            </TextBlock>
+                                                                            <ListBox ItemsSource="{Binding Hosts, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+                                                                                <ListBox.ItemContainerStyle>
+                                                                                    <Style TargetType="ListBoxItem">
+                                                                                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                                                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                                                        <Setter Property="Padding" Value="0"/>
+                                                                                        <Setter Property="Margin" Value="2"/>
+                                                                                    </Style>
+                                                                                </ListBox.ItemContainerStyle>
+                                                                                <ListBox.ItemTemplate>
+                                                                                    <DataTemplate>
+                                                                                        <Border Background="LightGray" >
+                                                                                            <StackPanel Orientation="Horizontal" >
+                                                                                                <iconPacks:PackIconMaterial Visibility="{Binding Client.Gender,Converter={StaticResource BoolToCollaps}}" VerticalAlignment="Center" Kind="FaceWoman" Margin="2"/>
+                                                                                                <iconPacks:PackIconMaterial Visibility="{Binding Client.Gender,Converter={StaticResource ReverseBoolToCollaps}}" VerticalAlignment="Center" Kind="FaceMan" Margin="2"/>
+                                                                                                <TextBlock VerticalAlignment="Center" Padding="5" FlowDirection="RightToLeft">
+                                                                        <Run Text="{Binding Client.FirstName}"/>
+                                                                        <Run Text="{Binding Client.LastName}"/>
+                                                                                                </TextBlock>
+                                                                                            </StackPanel>
+                                                                                        </Border>
+                                                                                    </DataTemplate>
+                                                                                </ListBox.ItemTemplate>
+                                                                            </ListBox>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                                
+
+                                                            </ItemsControl.Resources>
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel/>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                            
+                                        </ItemsControl.Resources>
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
+                    <DockPanel Margin="10" Grid.Row="1" Grid.ColumnSpan="2">
+
+                        <StackPanel IsEnabled="{c:Binding !SavingData}" VerticalAlignment="Center">
+
+                            <StackPanel Orientation="Horizontal">
+                                <Button Margin="5" Cursor="Hand" Visibility="{c:Binding 'SelectedHotel != null'}" BorderBrush="Black" HorizontalAlignment="Left"  hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource save}" hc:IconElement.Height="17" Command="{Binding SaveSpotCommand}">
+                                    <hc:Poptip.Instance>
+                                        <hc:Poptip Content="حفظ الغرف الافتراضية"  Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="50"/>
+                                    </hc:Poptip.Instance>
+                                </Button>
+                                <Button FlowDirection="RightToLeft" Visibility="{c:Binding 'SelectedHotel != null'}"  Margin="5" Cursor="Hand" BorderBrush="Black" HorizontalAlignment="Left"  hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource export}" hc:IconElement.Height="17" Click="ExportButton_Click">
+                                    <hc:Poptip.Instance>
+                                        <hc:Poptip Content="طباعة بيانات التسكين"  Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-130"/>
+                                    </hc:Poptip.Instance>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                
+                          
+                            <Button Visibility="{c:Binding SpotsAvailable}" Margin="5" Cursor="Hand" BorderBrush="Black" HorizontalAlignment="Left"  hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource link}" hc:IconElement.Height="17" Click="LinkButton_Click">
+                                <hc:Poptip.Instance>
+                                    <hc:Poptip Content="تشكيل رابطة"  Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="50"/>
+                                </hc:Poptip.Instance>
+                            </Button>
+                            <Button FlowDirection="RightToLeft" Visibility="{c:Binding GroupAvailable}" Margin="5" Cursor="Hand" BorderBrush="Black" HorizontalAlignment="Left"  hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource brokenLink}" hc:IconElement.Height="17" Click="BreakButton_Click">
+                                <hc:Poptip.Instance>
+                                        <hc:Poptip Content="حذف رابطة"  Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-80"/>
+                                </hc:Poptip.Instance>
+                            </Button>
+                            </StackPanel >
+                        </StackPanel>
+                        <ScrollViewer FontSize="15" HorizontalScrollBarVisibility="Visible">
+                            <Grid FlowDirection="RightToLeft" Margin="10,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Border BorderBrush="Black" Background="White" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="5,2" BorderThickness="1" CornerRadius="10 0 0 0" Margin="0" Grid.Column="0" Grid.Row="0">
+                                    <TextBlock Text="نوع الغرف"/>
+                                </Border>
+                                <Border BorderBrush="Black" Background="White" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="5,2" BorderThickness="1 0" CornerRadius="0" Margin="0" Grid.Column="0" Grid.Row="1">
+                                    <TextBlock Text="عدد الغرف"/>
+                                </Border>
+                                <Border BorderBrush="Black" Background="White" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="5,2" BorderThickness="1" CornerRadius="0 0 0 10" Margin="0" Grid.Column="0" Grid.Row="2">
+                                    <TextBlock Text="عدد المعتمرين"/>
+                                </Border>
+                                <ListBox Margin="0" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="1" FlowDirection="RightToLeft" ItemContainerStyle="{StaticResource ListBoxContainerTableStyle}" BorderBrush="Transparent" ItemsSource="{Binding RoomsList}"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                    <ListBox.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="10"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Style>
+                                    </ListBox.Resources>
+                                    <ListBox.Style>
+                                        <Style TargetType="ListBox">
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                        </Style>
+                                    </ListBox.Style>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel IsItemsHost="True"/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding Color}" Padding="15,2">
+                                                <TextBlock Text="{Binding}"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <ListBox Grid.Row="1" Grid.Column="1" FlowDirection="RightToLeft" ItemContainerStyle="{StaticResource ListBoxContainerTableStyle}" BorderBrush="Transparent" Background="Transparent" ItemsSource="{Binding RoomsNumbersList}" Margin="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                    <ListBox.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="0"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Style>
+                                    </ListBox.Resources>
+                                    <ListBox.Style>
+                                        <Style TargetType="ListBox">
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                        </Style>
+                                    </ListBox.Style>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel IsItemsHost="True"/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="White" Padding="15,2">
+                                                <TextBlock Text="{Binding}"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <ListBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" FlowDirection="RightToLeft" ItemContainerStyle="{StaticResource ListBoxContainerTableStyle}" BorderBrush="Transparent"  ItemsSource="{Binding RoomsClientsNumbersList}" Margin="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                    <ListBox.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="0"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Style>
+                                    </ListBox.Resources>
+                                    <ListBox.Style>
+                                        <Style TargetType="ListBox">
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                        </Style>
+                                    </ListBox.Style>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel IsItemsHost="True"/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="white" Padding="15,2">
+                                                <TextBlock Text="{Binding}"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <Border BorderBrush="Black" Background="White" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="5,2" BorderThickness="1" CornerRadius="0 10 0 0" Margin="0" Grid.Column="2" Grid.Row="0">
+                                    <TextBlock FontSize="15" Text="المجموع"/>
+                                </Border>
+                                <Border BorderBrush="Black" Background="White" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="5,2" BorderThickness="1 0" CornerRadius="0" Margin="0" Grid.Column="2" Grid.Row="1">
+                                    <TextBlock FontSize="15" Text="{Binding TotalSpots}"/>
+                                </Border>
+                                <Border BorderBrush="Black" Background="White" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="5,2" BorderThickness="1" CornerRadius="0 0 10 0" Margin="0" Grid.Column="2" Grid.Row="2">
+                                    <TextBlock FontSize="15" Text="{Binding TotalHosts}"/>
+                                </Border>
+                            </Grid>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </hc:TransitioningContentControl>
+        </GroupBox>
+        <GroupBox BorderThickness="0" Background="#eef" Grid.Column="1" Grid.Row="1" Margin="10" hc:BorderElement.CornerRadius="20" Style="{StaticResource GroupBoxTab}"  FontSize="20" Header="المعتمرين" Padding="10">
+            <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+
+                <ListBox IsEnabled="{c:Binding !SavingData}" x:Name="hotstsListBox" Background="White" ItemsSource="{Binding SelectedHostsWithoutSpots}" SelectedItem="{Binding SelectedHost}">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="2"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border  x:Name="hostItem" MouseMove="hostItem_MouseMove" Background="{Binding HotelRoom.Room.Color}" Padding="5,7" FlowDirection="RightToLeft" CornerRadius="5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <StackPanel>
+
+                                    <TextBlock FontSize="15">
+                                <Run FontWeight="DemiBold" Text="الاسم :"/>
+                                <Run Text="{Binding Client.FirstName}"/>
+                                <Run Text="{Binding Client.LastName}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="15">
+                                     <Run FontWeight="DemiBold" Text="نوع الغرفة :"/>
+                                <Run Text="{Binding HotelRoom.Room.Type}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </hc:TransitioningContentControl>
+        </GroupBox>
+    </Grid>
+</UserControl>

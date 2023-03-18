@@ -1,0 +1,51 @@
+﻿<Border  x:Class="Airfare.Views.Dialogs.CompanyContractDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Airfare.Views.Dialogs" xmlns:vm="clr-namespace:Airfare.ViewModels.DialogViewModels" xmlns:cv="clr-namespace:Airfare.Converters"
+         xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding" xmlns:hc="https://handyorg.github.io/handycontrol"
+         mc:Ignorable="d" 
+          CornerRadius="10"
+        Background="White"
+        FlowDirection="RightToLeft"
+         Height="300"
+            Width="600">
+    <Border.DataContext>
+        <vm:CompanyContractDialogViewModel/>
+    </Border.DataContext>
+    <Border.Resources>
+        <cv:BoolToCollapsConverter x:Key="BoolToCollaps"/>
+        <cv:ReverseBoolToCollapsConverter x:Key="ReverseBoolToCollaps"/>
+    
+    </Border.Resources>
+    <hc:SimplePanel>
+        <Button Cursor="Hand" Width="22" Height="22" Command="{Binding CloseDialogCommand}" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryBrush}" hc:IconElement.Geometry="{StaticResource ErrorGeometry}" Padding="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"/>
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <ComboBox x:Name="FlightsComboBox" FontSize="18" ItemsSource="{Binding FlightsList}" SelectedItem="{Binding SelectedFlight,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" Grid.Row="0" Margin="5,0,5,0" Style="{StaticResource ComboBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الرحلة" VerticalAlignment="Center" />
+            <ComboBox x:Name="HotelsComboBox" FontSize="18" ItemsSource="{Binding FlightHotelsList}" SelectedItem="{Binding SelectedFlightHotel,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" Grid.Row="0" Grid.Column="1"  Margin="5,0,1,0" Style="{StaticResource ComboBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الفندق" VerticalAlignment="Center" />
+            <ComboBox x:Name="RoomsComboBox" FontSize="18" ItemsSource="{Binding RoomsList}" SelectedItem="{Binding SelectedRoom,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" Grid.Row="1" Margin="5,0,5,0" Style="{StaticResource ComboBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الغرفة" VerticalAlignment="Center" />
+            <TextBox x:Name="RoomsNumberTextBox" FontSize="18" Text="{Binding RoomsNumber,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" Grid.Row="1" Grid.Column="1" Margin="2,0,4,0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="عدد الأفراد" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2">
+                <TextBlock Text="المبلغ الفردي : " FontSize="18" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding CompanyContract.HotelRoom.Price,ConverterCulture='ar-DZ', StringFormat=c}" FontSize="18" VerticalAlignment="Center"/>
+                <hc:Divider Orientation="Vertical" MaxHeight="25" LineStrokeThickness="2"/>
+
+                <TextBlock Text="المبلغ المستحق : " FontSize="18" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding FullPrice,ConverterCulture='ar-DZ', StringFormat=c}" FontSize="18" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Button Visibility="{Binding UpdateMode,Converter={StaticResource  ReverseBoolToCollaps}}" Cursor="Hand" Height="40" BorderBrush="Black" FontSize="18" Grid.Row="5" Margin="10" HorizontalAlignment="Left" Content="إدخال" Command="{Binding AddCompanyContractCommand}"/>
+            <Button Visibility="{Binding UpdateMode,Converter={StaticResource  BoolToCollaps}}" Cursor="Hand" Height="40" BorderBrush="Black" FontSize="18" Grid.Row="5" Margin="10" HorizontalAlignment="Left" Content="تحديث" Command="{Binding UpdateCompanyContractCommand}"/>
+        </Grid>
+    </hc:SimplePanel>
+</Border>

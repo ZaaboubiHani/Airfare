@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "yiFtHYnxiRfYM2Az1fljV12BWEUlB2EOVCKRBhXgsgsU68w6OuB9Wla1dVYw6DmVC9TrFMbLPE+UpzKzVpMd/g==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Nilzak Indigo\\source\\repos\\Awali-App\\Installer\\Installer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Nilzak Indigo\\.nuget\\packages\\calcbinding\\2.5.2\\calcbinding.2.5.2.nupkg.sha512",
+    "C:\\Users\\Nilzak Indigo\\.nuget\\packages\\dynamicexpresso.core\\2.3.1\\dynamicexpresso.core.2.3.1.nupkg.sha512",
+    "C:\\Users\\Nilzak Indigo\\.nuget\\packages\\handycontrol\\3.4.0\\handycontrol.3.4.0.nupkg.sha512",
+    "C:\\Users\\Nilzak Indigo\\.nuget\\packages\\system.codedom\\7.0.0\\system.codedom.7.0.0.nupkg.sha512",
+    "C:\\Users\\Nilzak Indigo\\.nuget\\packages\\system.management\\7.0.0\\system.management.7.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

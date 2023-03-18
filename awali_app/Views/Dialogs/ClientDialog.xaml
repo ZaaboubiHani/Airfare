@@ -1,0 +1,183 @@
+﻿<Border x:Class="Airfare.Views.Dialogs.ClientDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Airfare.Views.Dialogs" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:vm="clr-namespace:Airfare.ViewModels.DialogViewModels" xmlns:hc="https://handyorg.github.io/handycontrol" 
+             xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" xmlns:cv="clr-namespace:Airfare.Converters"
+             mc:Ignorable="d" 
+             x:Name="clientDialogUI"
+             CornerRadius="10"
+             Background="White"
+             FlowDirection="RightToLeft"
+             Width="900"
+             Height="auto"
+            PreviewKeyDown="clientDialogUI_PreviewKeyDown"
+        Loaded="clientDialogUI_Loaded">
+    <Border.DataContext>
+        <vm:ClientDialogViewModel/>
+    </Border.DataContext>
+    <Border.Resources>
+        <cv:BoolToCollapsConverter x:Key="BoolToCollaps"/>
+        <cv:BoolToGenderConverter x:Key="BoolToGender"/>
+        <cv:ReverseBoolToCollapsConverter x:Key="ReverseBoolToCollaps"/>
+        <cv:StartAtOne x:Key="StartAtOne"/>
+    </Border.Resources>
+    <hc:SimplePanel >
+        <!-- Exit Button -->
+        <Button Width="22" Cursor="Hand" Height="22" Command="{Binding CloseDialogCommand}" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryBrush}" hc:IconElement.Geometry="{StaticResource ErrorGeometry}" Padding="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"/>
+        <!-- Input Panel -->
+        <StackPanel Margin="16,18">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="FirstNameTextBox" PreviewKeyDown="FirstNameTextBox_PreviewKeyDown" FontSize="15" Text="{Binding Client.FirstName}" Grid.Column="0" Margin="2,0,4,0"  Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="اللقب" VerticalAlignment="Center" Height="64"/>
+                <TextBox x:Name="LastNameTextBox" PreviewKeyDown="LastNameTextBox_PreviewKeyDown" FontSize="15" Text="{Binding Client.LastName}" Grid.Column="1" Margin="5,0,1,0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الإسم" VerticalAlignment="Center" Height="64"/>
+
+                <DatePicker x:Name="DatePicker" PreviewKeyDown="DatePicker_PreviewKeyDown" Grid.Row="0" Grid.Column="2" SelectedDate="{Binding Client.BirthDate,StringFormat='dd MMM yyyy'}" FontSize="15" Margin="5" Style="{StaticResource DatePickerExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="تاريخ الميلاد"/>
+                   
+                <TextBox x:Name="PassportNumberTextBox" PreviewKeyDown="PassportNumberTextBox_PreviewKeyDown" FontSize="15" Text="{Binding Client.PassportNumber}" Grid.Row="1" Grid.Column="0" Margin="2,0,4,0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="رقم جواز السفر" VerticalAlignment="Center" Height="64"/>
+                <Grid Grid.Row="3" Grid.Column="1">
+                <DockPanel  Width="260"  Margin="5,5,0,5" HorizontalAlignment="Left" Grid.ColumnSpan="2" >
+                    <TextBox x:Name="PhoneTextBox" PreviewKeyDown="PhoneTextBox_PreviewKeyDown" FontSize="15" Text="{Binding PhoneNumber,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"  Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="رقم الهاتف" VerticalAlignment="Center"/>
+                    
+                </DockPanel>
+                    <Button Cursor="Hand" BorderBrush="Black" VerticalAlignment="Bottom" Margin="0,0,12,4" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource plus}" hc:IconElement.Height="17" Command="{Binding AddPhoneCommand}" Height="32">
+                        <hc:Poptip.Instance>
+                            <hc:Poptip Content="أضف رقم الهاتف" BorderBrush="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="45"/>
+                        </hc:Poptip.Instance>
+                    </Button>
+                </Grid>
+                
+                <TextBox x:Name="HealthStatusTextBox" PreviewKeyDown="HealthStatusTextBox_PreviewKeyDown" FontSize="15" Text="{Binding Client.HealthStatus}" Grid.Row="2" Grid.Column="1" Margin="5,0,5,0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الحالة الصحية" VerticalAlignment="Center"/>
+                <ComboBox x:Name="GenderComboBox" PreviewKeyDown="GenderComboBox_PreviewKeyDown" FontSize="15" SelectedIndex="{Binding Client.Gender}" Grid.Row="2" Grid.Column="0" Margin="2,0,4,0" Style="{StaticResource ComboBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الجنس" VerticalAlignment="Center">
+                    <ComboBoxItem Content="ذكر"/>
+                    <ComboBoxItem Content="أنثى"/>
+                </ComboBox>
+                <ComboBox x:Name="HotelsComboBox" PreviewKeyDown="HotelsComboBox_PreviewKeyDown" FontSize="15" ItemsSource="{Binding FlightHotels}" SelectedIndex="{Binding SelectedFlightHotelIndex,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" SelectedItem="{Binding SelectedFlightHotel}" Grid.Row="1" Grid.Column="1" Margin="5,0,1,0" Style="{StaticResource ComboBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الفندق" VerticalAlignment="Center" />
+                <ComboBox x:Name="RoomsComboBox" PreviewKeyDown="RoomsComboBox_PreviewKeyDown" FontSize="15" ItemsSource="{Binding Rooms}" SelectedIndex="{Binding SelectedRoomIndex,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" SelectedItem="{Binding SelectedRoom}" Grid.Row="1" Grid.Column="2" Margin="5,0,5,0" Style="{StaticResource ComboBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الغرفة" VerticalAlignment="Center" />
+                <TextBox x:Name="DescriptionTextBox" PreviewKeyDown="DescriptionTextBox_PreviewKeyDown" FontSize="15" Text="{Binding Client.Description}" Grid.Row="3" Grid.Column="0" Margin="2,0,4,0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="ملاحظة" VerticalAlignment="Center" />
+                <TextBox x:Name="DiscountTextBox" PreviewKeyDown="DiscountTextBox_PreviewKeyDown" FontSize="15" Text="{Binding Discount,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay,ConverterCulture='ar-DZ', StringFormat=c}" Grid.Row="2" Grid.Column="2" Margin="2,0,4,0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="تخفيض" VerticalAlignment="Center"/>
+                <Grid  Grid.Row="3" Grid.Column="2">
+
+                    <TextBox x:Name="PaymentTextBox" PreviewKeyDown="PaymentTextBox_PreviewKeyDown" FontSize="15" Width="260" HorizontalAlignment="Left" Text="{Binding Payment.Amount,ConverterCulture='ar-DZ', StringFormat=c}" Margin="2,0,0,0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="الدفع" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+                <Button Margin="0,0,12,4" Cursor="Hand" BorderBrush="Black" Grid.Row="4" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource plus}" hc:IconElement.Height="17" Command="{Binding AddPaymentCommand}" Height="32">
+                    <hc:Poptip.Instance>
+                        <hc:Poptip Content="أضف دفع"  Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="40"/>
+                    </hc:Poptip.Instance>
+                </Button>
+                </Grid>
+                <StackPanel Grid.Row="6" HorizontalAlignment="Center" Orientation="Horizontal"  Grid.ColumnSpan="3" >
+                    <StackPanel Margin="0" >
+                       
+                        <StackPanel Margin="10,5" Orientation="Horizontal">
+
+                            <TextBlock VerticalAlignment="Center" FontSize="15" Margin="0" Text="الاعاشة"/>
+                            <CheckBox HorizontalAlignment="Center" Margin="5 0 0 0" Cursor="Hand" BorderThickness="1" IsChecked="{Binding Feed}">
+                                <CheckBox.LayoutTransform>
+                                    <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                                </CheckBox.LayoutTransform>
+                            </CheckBox>
+                        </StackPanel>
+                        <StackPanel Margin="10,5" Orientation="Horizontal">
+
+                            <TextBlock FontSize="15" VerticalAlignment="Center" Text="مرشد"/>
+                            <CheckBox HorizontalAlignment="Center" Margin="5 0 0 0" Cursor="Hand" BorderThickness="1" IsChecked="{Binding IsGuide}">
+                                <CheckBox.LayoutTransform>
+                                    <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                                </CheckBox.LayoutTransform>
+                            </CheckBox>
+                        </StackPanel>
+                    </StackPanel>
+                    <hc:Divider Opacity="1 " Orientation="Vertical" Margin="0,5" HorizontalAlignment="Center" LineStrokeThickness="1" LineStroke="{DynamicResource DarkPrimaryBrush}"/>
+                    <TextBlock FontSize="15" Text="المبلغ الاجمالي" Margin="10" VerticalAlignment="Center"/>
+                    <Border Margin="0,5" BorderBrush="Black" CornerRadius="5" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock FontSize="15" MinWidth="100"  Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding FullPrice,Mode=TwoWay,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                    </Border>
+                    <TextBlock FontSize="15" Text="المبلغ الدفوع" Margin="10" VerticalAlignment="Center"/>
+                    <Border Margin="0,5" BorderBrush="Black" CornerRadius="5" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock FontSize="15" MinWidth="100"  Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding PaidPrice,Mode=TwoWay,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                    </Border>
+                    <TextBlock FontSize="15" Text="المبلغ المتبقي" Margin="10" VerticalAlignment="Center"/>
+                    <Border Margin="0,5" BorderBrush="Black" CornerRadius="5" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock FontSize="15" MinWidth="100"  Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding RemainingPrice,Mode=TwoWay,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                    </Border>
+                    </StackPanel>
+                <DataGrid Background="#eef" MaxHeight="200" Margin="5,5,1,6" RowHeight="25" ClipToBounds="True" Grid.Row="4" Grid.Column="1" Grid.RowSpan="2" IsReadOnly="True" HeadersVisibility="All" SelectionMode="Single" AutoGenerateColumns="False" ItemsSource="{Binding PhonesList}" SelectedItem="{Binding SelectedPhone}">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Height" Value="20"/>
+                            <Setter Property="Padding" Value="5,0"/>
+                            <Setter Property="Margin" Value="0 -15 0 0"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="*" Header="رقم الهاتف" Binding="{Binding Number}"/>
+                        <DataGridTemplateColumn Width="auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Cursor="Hand" hc:BorderElement.CornerRadius="15" BorderBrush="Transparent" Command="{Binding Path=DataContext.RemovePhoneCommand, ElementName=clientDialogUI }" hc:IconElement.Geometry="{StaticResource delete}" hc:IconElement.Height="13">
+                                        <hc:Poptip.Instance>
+                                            <hc:Poptip Content="حذف" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="45"/>
+                                        </hc:Poptip.Instance>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <DataGrid RowHeight="25" MaxHeight="200" Background="#eef" ClipToBounds="True" Margin="5,5,5,6" Grid.Row="4" Grid.Column="2" Grid.RowSpan="2" IsReadOnly="True" HeadersVisibility="All" SelectionMode="Single" AutoGenerateColumns="False" ItemsSource="{Binding PaymentsList}" SelectedItem="{Binding SelectedPayment}">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Height" Value="20"/>
+                            <Setter Property="Padding" Value="10,0"/>
+                            <Setter Property="Margin" Value="0 -15 0 0"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="auto" Header="الدفع" Binding="{Binding Amount,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                        <DataGridTextColumn Width="auto" Header="التاريخ" Binding="{Binding Date}"/>
+                        <DataGridTemplateColumn Width="auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Width="35" Cursor="Hand" hc:BorderElement.CornerRadius="15" BorderBrush="Transparent" Command="{Binding Path=DataContext.RemovePaymentCommand, ElementName=clientDialogUI }" hc:IconElement.Geometry="{StaticResource delete}" hc:IconElement.Height="13">
+                                        <hc:Poptip.Instance>
+                                            <hc:Poptip Content="حذف" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="45"/>
+                                        </hc:Poptip.Instance>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <StackPanel Grid.Row="5" Grid.Column="0" Margin="5 2 5 0">
+                    <TextBlock FontSize="15" Text="اللون" Margin="7 5 0 7"/>
+                    <mah:ColorPicker x:Name="ColorPicker" PreviewKeyDown="ColorPicker_PreviewKeyDown" BorderBrush="Black" Height="30" SelectedColor="{Binding Client.Color}" mah:IsColorPalettesTabVisible="False"/>
+                </StackPanel>
+                <hc:ComboBox x:Name="CompanyComboBox" PreviewKeyDown="CompanyComboBox_PreviewKeyDown" FontSize="15" ItemsSource="{Binding Companies}" SelectedIndex="{Binding SelectedCompanyIndex,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" SelectedItem="{Binding SelectedCompany}" Grid.Row="4" Grid.Column="0" Margin="5,0,5,0" Style="{StaticResource ComboBoxExtend}" ShowClearButton="True" Loaded="CompanyComboBox_Loaded" hc:InfoElement.TitlePlacement="Top" hc:InfoElement.Title="المتعامل" VerticalAlignment="Center" />
+
+            </Grid>
+            <!-- Insert Button -->
+            <Button FontSize="15" Height="40" Cursor="Hand" BorderBrush="Black" Visibility="{Binding UpdateMode,Converter={StaticResource  ReverseBoolToCollaps}}" Margin="0" Content="إدخال" Command="{Binding AddClientCommand}"/>
+            <Button FontSize="15" Height="40" Cursor="Hand" BorderBrush="Black" Visibility="{Binding UpdateMode,Converter={StaticResource  BoolToCollaps}}" Margin="0" Content="تحديث" Command="{Binding UpdateClientCommand}"/>
+        </StackPanel>
+    </hc:SimplePanel>
+</Border>

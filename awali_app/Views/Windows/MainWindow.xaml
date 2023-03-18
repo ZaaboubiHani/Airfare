@@ -1,0 +1,149 @@
+﻿<hc:Window x:Class="Airfare.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:vm="clr-namespace:Airfare.ViewModels.WindowsViewModels"
+                 xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                 xmlns:hc="https://handyorg.github.io/handycontrol"
+                 mc:Ignorable="d"
+                 Background="{DynamicResource LightBlueColor}"
+                 FontFamily="Comfortaa"
+                 Title="Airfare" Height="600" Width="900"
+                 WindowStartupLocation="CenterScreen"
+                 WindowState="Maximized"
+          Icon="/Icons/logo"
+                 BorderBrush="{DynamicResource LightBlueColor}">
+    <hc:Window.DataContext>
+        <vm:MainViewModel/>
+    </hc:Window.DataContext>
+    <Grid FlowDirection="RightToLeft" Background="{DynamicResource LightBlueColor}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <!-- Side Menu -->
+        <Border CornerRadius="0 10 10 0" Background="{DynamicResource SecundaryBackgroundColor}">
+            <Grid x:Name="gridMenu" Width="60">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="80"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <!-- Logo -->
+                <StackPanel Grid.Row="1" Margin="5,0" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Image Source="/Icons/logo" Height="80" />
+                </StackPanel>
+                <!-- Menu button -->
+                <ToggleButton x:Name="btnMenu"  HorizontalAlignment="Left" BorderThickness="0" Background="Transparent" VerticalAlignment="Center" Style="{StaticResource MenuIconStyle}" Margin="15 0 0 0">
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard x:Name="HideStackPanel">
+                                    <DoubleAnimation Storyboard.TargetName="gridMenu" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="200" To="60" Duration="0:0:0.3"/>
+                                    <DoubleAnimation Storyboard.TargetName="hotel_poptip" Storyboard.TargetProperty="Opacity" From="0" To="1"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="room_poptip" Storyboard.TargetProperty="Opacity" From="0" To="1"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="flights_poptip" Storyboard.TargetProperty="Opacity" From="0" To="1"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="seasons_poptip" Storyboard.TargetProperty="Opacity" From="0" To="1"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="clients_poptip" Storyboard.TargetProperty="Opacity" From="0" To="1"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="statistics_poptip" Storyboard.TargetProperty="Opacity" From="0" To="1"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard x:Name="ShowStackPanel">
+                                    <DoubleAnimation Storyboard.TargetName="gridMenu" Storyboard.TargetProperty="Width" BeginTime="0:0:0" From="60" To="200" Duration="0:0:0.3"/>
+                                    <DoubleAnimation Storyboard.TargetName="hotel_poptip" Storyboard.TargetProperty="Opacity" From="1" To="0" BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="room_poptip" Storyboard.TargetProperty="Opacity" From="1" To="0"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="flights_poptip" Storyboard.TargetProperty="Opacity" From="1" To="0" BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="seasons_poptip" Storyboard.TargetProperty="Opacity" From="1" To="0"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="clients_poptip" Storyboard.TargetProperty="Opacity" From="1" To="0"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetName="statistics_poptip" Storyboard.TargetProperty="Opacity" From="1" To="0"  BeginTime="0:0:0" Duration="0:0:0.1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
+                <!-- Side Menu buttons -->
+                <DockPanel  Grid.Row="2">
+
+                    <RadioButton  x:Name="Seasons_poptip" IsChecked="True" Content="المواسم" DockPanel.Dock="Top" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource kabba}" Margin="0 5 0 5" Click="Seasons_poptip_Click" >
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="seasons_poptip" BorderBrush="Black" Foreground="Black" Content="المواسم" Delay="0" Opacity="1" FontSize="15" PlacementType="Right" HorizontalOffset="-57"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+
+                    <RadioButton IsEnabled="{Binding EnableFeatures}"  x:Name="Flights_button" Content="الرحلات" DockPanel.Dock="Top" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource plane}" Margin="1 5 0 5" Click="Flights_button_Click" >
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="flights_poptip" BorderBrush="Black" Foreground="Black" Content="الرحلات"  Delay="0" Opacity="1" FontSize="15" PlacementType="Right" HorizontalOffset="-52"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+
+
+                    <RadioButton IsEnabled="{Binding EnableFeatures}" x:Name="Room_button" Content="الغرف" DockPanel.Dock="Top" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource door}" Margin="0 5 0 5" Click="Room_button_Click">
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="room_poptip" BorderBrush="Black" Foreground="Black" Content="الغرف" Width="auto"  Delay="0" Opacity="1" FontSize="15" PlacementType="Right" HorizontalOffset="-46"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+
+
+                    <RadioButton IsEnabled="{Binding EnableFeatures}" x:Name="Hotel_button" Content="التسكين" DockPanel.Dock="Top" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource bank}" Margin="0 5 0 5" Click="Hotel_button_Click">
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="hotel_poptip" BorderBrush="Black" Foreground="Black" Content="التسكين"  Delay="0" Opacity="1" FontSize="15" PlacementType="Right" HorizontalOffset="-55"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+
+
+
+                    <RadioButton IsEnabled="{Binding EnableFeatures}" x:Name="Clients_button" Content="المتعاملين" DockPanel.Dock="Top" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource users}" Margin="0 5 0 5" Click="Clients_button_Click">
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="clients_poptip" BorderBrush="Black" Foreground="Black" Content="المتعاملين" Delay="0" Opacity="1" FontSize="15" PlacementType="Right" HorizontalOffset="-67"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+
+                    <RadioButton IsEnabled="{Binding EnableFeatures}" x:Name="Statistics_button" Content="الإحصائيات" DockPanel.Dock="Top" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource chart}" Margin="0 5 0 5" Click="Statistics_button_Click">
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="statistics_poptip" BorderBrush="Black" Foreground="Black" Content="الإحصائيات" Delay="0" Opacity="1" FontSize="15" PlacementType="Right" HorizontalOffset="-67"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+
+                    <!--
+                    <RadioButton x:Name="Reservation_button" Content="التحفظات" DockPanel.Dock="Top" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource booking}" Margin="0 5 0 5" Click="Reservation_button_Click" >
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="reservation_poptip" Content="التحفظات" Delay="0" Opacity="1" FontSize="12" PlacementType="Right" HorizontalOffset="-64"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+                    <RadioButton x:Name="Dashboard_button" DockPanel.Dock="Top" Content="لوحة القيادة" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource dashboard}"  Click="Dashboard_button_Click">
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="dashboard_poptip" Delay="0" Opacity="1" Content="لوحة القيادة" FontSize="12" PlacementType="Right" HorizontalOffset="-75"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+                    
+                    
+
+                    <RadioButton x:Name="Billing_button" Content="الحجز" DockPanel.Dock="Top" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource invoice}" Margin="0 5 0 5" Click="Billing_button_Click" >
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="billing_poptip" Content="الحجز"  Delay="0" Opacity="1" FontSize="12" PlacementType="Right" HorizontalOffset="-42"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+                    -->
+                    <RadioButton IsEnabled="{Binding EnableFeatures}" x:Name="Settings_button" Content="الإعدادات" DockPanel.Dock="Bottom" Style="{DynamicResource MenuRadioButtonStyle}" Tag="{DynamicResource settings}" Margin="0 5 0 5" Click="Settings_button_Click" >
+                        <hc:Poptip.Instance>
+                            <hc:Poptip x:Name="settings_poptip" BorderBrush="Black" Foreground="Black" Content="الإعدادات"  Delay="0" Opacity="1" FontSize="15" PlacementType="Right" HorizontalOffset="-62"/>
+                        </hc:Poptip.Instance>
+                    </RadioButton>
+                    <StackPanel DockPanel.Dock="Bottom"/>
+                </DockPanel>
+            </Grid>
+        </Border>
+        <!-- Main Page -->
+        <Border Grid.Column="1" Margin="10" CornerRadius="15" Background="{DynamicResource SecundaryBackgroundColor}">
+            <Grid>
+                <Frame x:Name="PagesNavigation" NavigationUIVisibility="Hidden"  BorderBrush="Transparent">
+                    <!-- Page Content -->
+                </Frame>
+            </Grid>
+        </Border>
+    </Grid>
+</hc:Window>

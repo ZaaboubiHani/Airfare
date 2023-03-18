@@ -1,0 +1,758 @@
+﻿<UserControl x:Class="Airfare.Views.FlightView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Airfare.Views"
+             x:Name="FlightsUI"
+             mc:Ignorable="d" 
+             FlowDirection="RightToLeft"
+             PreviewKeyDown="FlightsGrid_PreviewKeyDown"
+             xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+             xmlns:con="clr-namespace:Airfare.ViewModels.Controls"
+             xmlns:hc="https://handyorg.github.io/handycontrol" 
+             xmlns:cv="clr-namespace:Airfare.Converters" 
+             xmlns:vm="clr-namespace:Airfare.ViewModels.UserControlViewModels" 
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                          xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <vm:FlightViewModel/>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <cv:BoolToCollapsConverter x:Key="BoolToCollaps"/>
+        <cv:BoolToGenderConverter x:Key="BoolToGender"/>
+        <cv:ReverseBoolToCollapsConverter x:Key="ReverseBoolToCollaps"/>
+        <cv:StartAtOne x:Key="StartAtOne"/>
+        <cv:BytesToImageConverter x:Key="BytesToImage"/>
+        <cv:ObjToCollapsConverter x:Key="ObjToCollaps"/>
+    </UserControl.Resources>
+    <TabControl Margin="5">
+        <!--Add new flight Tab-->
+        <TabItem FontSize="18" Header="إضافة رحلة جديدة" Width="200">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <TabControl>
+                    <TabItem Header="معلومات الرحلة" FontSize="18">
+                       
+                        <Grid Background="Transparent">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Flight information -->
+                            <Image VerticalAlignment="Bottom" Grid.Column="1" Source="/Assets/Aircraft-amico.png"/>
+                            <Border CornerRadius="15" BorderThickness="0" Background="#eef" Grid.Column="0" Margin="10"  Grid.Row="0" Padding="5"  >
+                                <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                    <Grid Margin="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Foreground="black" FontSize="18" Margin="0 0 0 30" Grid.Column="0" TextAlignment="Center" Text="رحلة الذهاب"/>
+                                        <TextBox Margin="0 20" Background="White" Foreground="black" FontSize="18" BorderThickness="1" Text="{Binding Flight.DepartName}" Grid.Row="0"  Grid.Column="0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Title="رقم الرحلة" />
+                                        <DatePicker Margin="0 20" Grid.Row="1" Grid.Column="0" Foreground="black" FontSize="18" BorderThickness="1"  Style="{StaticResource DatePickerExtend}" SelectedDate="{Binding Flight.DepartDate}" hc:InfoElement.Title="تاريخ الرحلة" />
+                                        <StackPanel Margin="0 20" Grid.Row="2" >
+                                            <TextBlock FontSize="18" Margin="5"  TextAlignment="Left" Text="توقية الرحلة"/>
+                                            <mah:TimePicker FontSize="18" BorderThickness="1" FlowDirection="LeftToRight" SelectedDateTimeChanged="DepartTimePicker_SelectedDateTimeChanged"  x:Name="DepartTimePicker"/>
+                                        </StackPanel>
+                                        <TextBox Margin="0 20" FontSize="18" BorderThickness="1"  Text="{Binding Flight.DepartItinerary}" Grid.Row="3" Grid.Column="0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Title="مسار الرحلة"/>
+                                        <hc:Divider Orientation="Vertical" Margin="20,0" Opacity="0.1" Grid.Column="1" Grid.RowSpan="4" HorizontalAlignment="Center" LineStrokeThickness="2" LineStroke="Black"/>
+                                        <TextBlock Margin="0 0 0 30" FontSize="18" Grid.Column="2"  TextAlignment="Center" Text="رحلة العودة"/>
+                                        <TextBox Margin="0 20" FontSize="18" BorderThickness="1" Text="{Binding Flight.ReturnName}"  Grid.Row="0" Grid.Column="2" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Title="رقم الرحلة" />
+                                        <DatePicker Margin="0 20" Grid.Row="1" Grid.Column="2" FontSize="18" SelectedDate="{Binding Flight.ReturntDate}" Style="{StaticResource DatePickerExtend}" hc:InfoElement.Title="تاريخ الرحلة"/>
+                                        <StackPanel Margin="0 20" Grid.Row="2" Grid.Column="2">
+                                            <TextBlock FontSize="18" Margin="5" TextAlignment="Left" Text="توقية الرحلة"/>
+                                            <mah:TimePicker FontSize="18" BorderThickness="1" FlowDirection="LeftToRight" Grid.Column="2" SelectedDateTimeChanged="ReturnTimePicker_SelectedDateTimeChanged" x:Name="ReturnTimePicker"/>
+                                        </StackPanel>
+                                        <TextBox Margin="0 20" FontSize="18" BorderThickness="1"  Text="{Binding Flight.ReturnItinerary}" Grid.Row="3" Grid.Column="2" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Title="مسار الرحلة"/>
+                                        <TextBox Margin="0 20" FontSize="18" BorderThickness="1"  Text="{Binding Flight.Capacity}" Grid.Row="4" Grid.Column="0" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Title="السعة"/>
+                                        <StackPanel Margin="0 20" Grid.Row="4" Grid.Column="2">
+                                            <TextBlock FontSize="18" Margin="5"  TextAlignment="Left" Text="صنف الرحلة"/>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="18" Margin="20 0" Text="AH"/>
+                                                    <con:OptionalRadioButton x:Name="AHOptionalRadioButton" Unchecked="AHOptionalRadioButton_Unchecked" Checked="AHOptionalRadioButton_Checked" Grid.Column="1" Height="20" Width="20">
+                                                        <con:OptionalRadioButton.RenderTransform>
+                                                            <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                                                        </con:OptionalRadioButton.RenderTransform>
+                                                    </con:OptionalRadioButton>
+                                                    <TextBlock Grid.Column="2" VerticalAlignment="Center"  FontSize="18" Margin="20 0" Text="TK"/>
+                                                    <con:OptionalRadioButton x:Name="TKOptionalRadioButton" Unchecked="TKOptionalRadioButton_Unchecked" Checked="TKOptionalRadioButton_Checked" Grid.Column="3" Height="20" Width="20" >
+                                                        <con:OptionalRadioButton.RenderTransform>
+                                                            <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                                                        </con:OptionalRadioButton.RenderTransform>
+                                                    </con:OptionalRadioButton>
+                                                </Grid>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </hc:TransitioningContentControl>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                    <TabItem FontSize="18" Header="فنادق الرحلة">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- Flight hotels -->
+                            <GroupBox  Background="#eef"  BorderThickness="0" hc:BorderElement.CornerRadius="20" Grid.Row="1" Header="فنادق الرحلة" Padding="0" Margin="10" Style="{StaticResource GroupBoxTab}" >
+                                <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                    <Grid Margin="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Border BorderThickness="0" Grid.Row="0" VerticalAlignment="Top" CornerRadius="5" >
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="الفنادق المتاحة" TextAlignment="Center" Grid.Column="0" Margin="0,5,0,0" Grid.Row="0"/>
+                                                <ListView x:Name="listViewHotels" SelectionMode="Single" Background="Transparent" BorderBrush="Transparent"  Grid.Row="1" Grid.Column="0" ItemsSource="{Binding HotelsList}" SelectedItem="{Binding SelectedHotel}">
+                                                    <ListView.ItemContainerStyle>
+                                                        <Style TargetType="{x:Type ListViewItem}">
+                                                            <Setter Property="Background" Value="Transparent" />
+                                                            <Setter Property="FontSize" Value="15"/>
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                                                        <Border x:Name="_Border"
+                                                                    BorderBrush="Transparent"
+                                                                    BorderThickness="0"
+                                                                        Margin="5"
+                                                                        CornerRadius="5"
+                                                                        Padding="10"
+                                                                        SnapsToDevicePixels="False"
+                                                                    Background="White">
+                                                                            <GridViewRowPresenter Name="_Cont"/>
+                                                                        </Border>
+
+                                                                        <ControlTemplate.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter TargetName="_Border" Property="Background" Value="orange"/>
+
+                                                                            </Trigger>
+                                                                            <Trigger Property="IsSelected" Value="True">
+                                                                                <Setter TargetName="_Border" Property="Background" Value="blue"/>
+                                                                                <Setter  Property="Foreground" Value="White"/>
+                                                                            </Trigger>
+                                                                        </ControlTemplate.Triggers>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+
+                                                        </Style>
+                                                    </ListView.ItemContainerStyle>
+                                                    <ListView.View>
+                                                        <GridView>
+
+                                                            <GridView.ColumnHeaderContainerStyle>
+                                                                <Style TargetType="GridViewColumnHeader">
+                                                                    <Setter Property="Height" Value="0"/>
+                                                                    <Setter Property="Width" Value="100"/>
+                                                                </Style>
+                                                            </GridView.ColumnHeaderContainerStyle>
+
+                                                            <GridViewColumn Width="auto">
+
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock  Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                        </GridView>
+                                                    </ListView.View>
+                                                </ListView>
+                                                <hc:LoadingLine Grid.Row="1" Grid.Column="0" Visibility="{Binding HotelsLoadingLine,Converter={StaticResource BoolToCollaps}}" Margin="0,16"/>
+                                                <StackPanel VerticalAlignment="Center" Grid.Row="1" Margin="5,5" Grid.Column="1">
+                                                    <Button Cursor="Hand" BorderBrush="Black" Margin="0,5" x:Name="Left" Click="Left_Click" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource arrowLeft}" hc:IconElement.Height="17"  />
+                                                    <Button Cursor="Hand" BorderBrush="Black" Margin="0,5" x:Name="Right" Click="Right_Click" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource arrowRight}" hc:IconElement.Height="17"  />
+                                                </StackPanel>
+                                                <TextBlock Text="الفنادق المختارة" TextAlignment="Center" Margin="0,5,0,0" Grid.Column="2" Grid.Row="0"/>
+                                                <ListBox x:Name="listBoxHotels" Background="Transparent" BorderBrush="Transparent" Grid.Row="1"  Grid.Column="2" ItemsSource="{Binding SelectedFlightHotelsList}" SelectedItem="{Binding SelectedFlightHotel}">
+                                                    <ListBox.ItemContainerStyle>
+                                                        <Style TargetType="ListBoxItem">
+                                                            <Setter Property="Height" Value="50"/>
+                                                            <Setter Property="Background" Value="LightGray"/>
+                                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+
+                                                        </Style>
+
+                                                    </ListBox.ItemContainerStyle>
+                                                    <ListBox.ItemTemplate >
+                                                        <DataTemplate>
+                                                            <Border HorizontalAlignment="Stretch" Height="40" VerticalAlignment="Stretch" Background="LightGray" Opacity="1" CornerRadius="5" ClipToBounds="False" Margin="0,4,0,0">
+
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="auto"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock FontSize="15" Grid.Column="0" Text="{Binding Hotel.Name}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,20,0"/>
+                                                                    <TextBlock FontSize="15" Text="الاعاشة" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0"/>
+                                                                    <TextBox FontSize="15" VerticalAlignment="Center" BorderBrush="Black" Grid.Column="2" Text="{Binding Feed,ConverterCulture='ar-DZ', StringFormat=c}"  MinHeight="25"  Padding="10,0" Margin="0 0 10 0"/>
+
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </Grid>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Bottom" FlowDirection="LeftToRight" Grid.Row="1" Orientation="Horizontal" Margin="5" >
+                                            <Button Cursor="Hand" Margin="0 10 10 0" BorderBrush="Black" hc:BorderElement.CornerRadius="15" Height="40" hc:IconElement.Geometry="{StaticResource addHotel}" hc:IconElement.Height="17" Command="{Binding ShowHotelDialogCommand}">
+                                                <hc:Poptip.Instance>
+                                                    <hc:Poptip Content="أضف فندق"  Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="50"/>
+                                                </hc:Poptip.Instance>
+                                            </Button>
+                                            <hc:LoadingCircle Visibility="{Binding AddHotelLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0 10 0 0"/>
+                                            <Button Cursor="Hand" Margin="0 10 10 0" BorderBrush="Black" hc:BorderElement.CornerRadius="15" Height="40" hc:IconElement.Geometry="{StaticResource delete}" hc:IconElement.Height="17" Command="{Binding RemoveHotelCommand}">
+                                                <hc:Poptip.Instance>
+                                                    <hc:Poptip Content="حذف فندق"  Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="50"/>
+                                                </hc:Poptip.Instance>
+                                            </Button>
+                                            <hc:LoadingCircle Visibility="{Binding RemoveHotelLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0 10 0 0"/>
+                                            <Button Cursor="Hand" Margin="0 10 10 0" BorderBrush="Black" hc:BorderElement.CornerRadius="15" Height="40" hc:IconElement.Geometry="{StaticResource update}" hc:IconElement.Height="17" Command="{Binding UpdateHotelCommand}">
+                                                <hc:Poptip.Instance>
+                                                    <hc:Poptip Content="تحديث فندق"  Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="50"/>
+                                                </hc:Poptip.Instance>
+                                            </Button>
+                                            <hc:LoadingCircle Visibility="{Binding UpdateHotelLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0 10 0 0"/>
+
+                                        </StackPanel>
+                                    </Grid>
+                                </hc:TransitioningContentControl>
+                            </GroupBox>
+                            <!-- Hotel rooms -->
+                            <GroupBox BorderBrush="Transparent" BorderThickness="0" Background="#eef" hc:BorderElement.CornerRadius="20"  Grid.Column="1" Grid.Row="1" Header="الغرف" Margin="10" Style="{StaticResource GroupBoxTab}" >
+                                <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="auto"/>
+                                        </Grid.RowDefinitions>
+                                        <DataGrid Grid.Row="0" Margin="5" Background="Transparent" VerticalAlignment="Top" BorderBrush="Transparent" BorderThickness="0.5" IsReadOnly="True" HeadersVisibility="All" SelectionMode="Single" AutoGenerateColumns="False" ItemsSource="{Binding DisplayedHotelsRooms}">
+                                            
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn FontSize="15" Width="auto" Binding="{Binding Room}" Header="نوع الغرفة"/>
+                                                <DataGridTemplateColumn Width="120" Header="تسعير" >
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBox Background="Transparent" FontSize="15" BorderBrush="Black" BorderThickness="1"   Text="{Binding Price,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        <StackPanel VerticalAlignment="Bottom" FlowDirection="LeftToRight" Grid.Row="1" Orientation="Horizontal" Margin="10" >
+                                            <Button Cursor="Hand" Margin="0,0,10,0" BorderBrush="Black" hc:BorderElement.CornerRadius="15" Height="40" hc:IconElement.Geometry="{StaticResource addRoom}" hc:IconElement.Height="17" Command="{Binding ShowRoomDialogCommand}">
+                                                <hc:Poptip.Instance>
+                                                    <hc:Poptip Content="أضف غرفة" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="50"/>
+                                                </hc:Poptip.Instance>
+                                            </Button>
+                                            <hc:LoadingCircle Visibility="{Binding AddRoomLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="10,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </hc:TransitioningContentControl>
+                            </GroupBox>
+                        </Grid>
+                    </TabItem>
+                    
+                </TabControl>
+                <StackPanel FlowDirection="LeftToRight" Grid.Row="1" Orientation="Horizontal" Margin="10" >
+                    <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+                        <Button Cursor="Hand" Foreground="White" Background="Blue" hc:BorderElement.CornerRadius="15" Height="40" hc:IconElement.Geometry="{StaticResource addFlight}" hc:IconElement.Height="17" Command="{Binding AddFlightCommand}">
+                        <hc:Poptip.Instance>
+                            <hc:Poptip Content="أضف رحلة" Foreground="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="50"/>
+                        </hc:Poptip.Instance>
+                    </Button>
+                        </hc:TransitioningContentControl>
+                    <hc:LoadingCircle Visibility="{Binding AddFlightLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="10,0"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+        <!--All flight Tab-->
+        <TabItem x:Name="FlightsTab" FontSize="18" Header="الرحلات" Width="200" >
+            <Grid x:Name="FlightsGrid" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" >
+                    <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                        <Grid>
+
+                            <ListBox IsEnabled="{c:Binding !ShowingClients}" ItemContainerStyle="{StaticResource VerticalListBoxItemStyle}" FontSize="20" BorderBrush="Black" Height="42" ItemsSource="{Binding Months}" SelectedItem="{Binding SelectedMonth}" Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="5,2">
+                                            <TextBlock Text="{Binding}"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <hc:LoadingLine Visibility="{Binding MonthsLoadingLine,Converter={StaticResource BoolToCollaps}}"/>
+                        </Grid>
+                    </hc:TransitioningContentControl>
+                    <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                        <ListBox IsEnabled="{c:Binding !ShowingClients}" ItemContainerStyle="{StaticResource VerticalListBoxItemStyle}" BorderBrush="Black" FontSize="20" Height="42" ItemsSource="{Binding SelectedFlights}" SelectedItem="{Binding SelectedFlight}" Margin="10,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel IsItemsHost="True" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="5,2">
+                                        <TextBlock Text="{Binding}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </hc:TransitioningContentControl>
+                    <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <hc:ComboBox IsEnabled="{c:Binding !ShowingClients}" BorderBrush="Black" FontSize="15" Grid.Column="0" Margin="10" hc:InfoElement.Placeholder="طريقة الترتيب" ShowClearButton="True" SelectedIndex="{Binding OrderMethod}">
+                                <ComboBoxItem Content="الاسم"/>
+                                <ComboBoxItem Content="اللقب"/>
+                                <ComboBoxItem Content="الجنس"/>
+                                <ComboBoxItem Content="الاعاشة"/>
+                                <ComboBoxItem Content="المبلغ المطلوب"/>
+                                <ComboBoxItem Content="المبلغ المدفوع"/>
+                                <ComboBoxItem Content="المبلغ المتبقي"/>
+                                <ComboBoxItem Content="نوع الغرفة"/>
+                                <ComboBoxItem Content="الفندق"/>
+                            </hc:ComboBox>
+                            <hc:CheckComboBox IsEnabled="{c:Binding !ShowingClients}" ItemContainerStyle="{StaticResource CheckComboBoxItemStyle}" BorderBrush="Black" FontSize="15" Grid.Column="1" Margin="10" ShowClearButton="True"  ItemsSource="{Binding AvailableFilters}" hc:InfoElement.Placeholder="طريقة التصفية"  SelectionChanged="CheckComboBox_SelectionChanged" Style="{StaticResource CheckComboBoxExtend}" />
+                        </Grid>
+                    </hc:TransitioningContentControl>
+                </StackPanel>
+                <Border IsEnabled="{c:Binding !ShowingClients}" Grid.Column="1" Background="LightGray" CornerRadius="10" Margin="10">
+                    <ScrollViewer MaxHeight="150" Width="110" >
+                    <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                        <StackPanel>
+
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Visibility="{Binding FlightFuntionsButonsVisibility,Converter={StaticResource BoolToCollaps}}">
+                                <hc:LoadingCircle Visibility="{Binding AddClientLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0"/>
+                                <Button Cursor="Hand" Foreground="White" Background="Blue" Margin="10,5" Height="40" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource addClient}" hc:IconElement.Height="17" Command="{Binding ShowClientDialogCommand}">
+                                    <hc:Poptip.Instance>
+                                        <hc:Poptip Content="أضف معتمر"  Delay="0" Foreground="Black" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-90"/>
+                                    </hc:Poptip.Instance>
+                                </Button>
+                            </StackPanel>
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Visibility="{Binding FlightFuntionsButonsVisibility,Converter={StaticResource BoolToCollaps}}">
+                                <hc:LoadingCircle Visibility="{Binding UpdateFlightLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0"/>
+                                <Button Cursor="Hand" Foreground="White" Background="Blue"  Margin="10,5" Height="40" HorizontalAlignment="Left" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource update}" hc:IconElement.Height="16" Command="{Binding ShowFlightDialogCommand}">
+                                    <hc:Poptip.Instance>
+                                        <hc:Poptip Content="تعديل الرحلة" Delay="0" Foreground="Black" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-90"/>
+                                    </hc:Poptip.Instance>
+                                </Button>
+                            </StackPanel>
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Visibility="{Binding FlightFuntionsButonsVisibility,Converter={StaticResource BoolToCollaps}}">
+                                <hc:LoadingCircle Visibility="{Binding ExportDataLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0"/>
+                                <Button Cursor="Hand" Foreground="White" Background="Blue"  Margin="10,5" Height="40" HorizontalAlignment="Left" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource export}"  hc:IconElement.Height="16" Command="{Binding ExportExcelDataCommand}">
+                                    <hc:Poptip.Instance>
+                                        <hc:Poptip Content="طباعة بيانات الرحلة" Foreground="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-130"/>
+                                    </hc:Poptip.Instance>
+                                </Button>
+                            </StackPanel>
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Visibility="{Binding FlightFuntionsButonsVisibility,Converter={StaticResource BoolToCollaps}}">
+                                    <hc:LoadingCircle Visibility="{Binding ImportDataLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0"/>
+                                    <Button Cursor="Hand" Foreground="White" Background="Blue"  Margin="10,5" Height="40" HorizontalAlignment="Left" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource import}"  hc:IconElement.Height="16" Command="{Binding ImportExcelDataCommand}">
+                                        <hc:Poptip.Instance>
+                                            <hc:Poptip Content="تحميل بيانات الرحلة" Foreground="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-130"/>
+                                        </hc:Poptip.Instance>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Visibility="{Binding FlightFuntionsButonsVisibility,Converter={StaticResource BoolToCollaps}}">
+                                <hc:LoadingCircle Visibility="{Binding DeleteFlightLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0"/>
+                                <Button Cursor="Hand" Foreground="White" Background="Blue"  Margin="10,5" Height="40" HorizontalAlignment="Left" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource delete}"  hc:IconElement.Height="16" Command="{Binding RemoveFlightCommand}">
+                                    <hc:Poptip.Instance>
+                                            <hc:Poptip Content="حذف الرحلة" Foreground="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-80"/>
+                                    </hc:Poptip.Instance>
+                                </Button>
+                            </StackPanel>
+                               
+                            </StackPanel>
+                    </hc:TransitioningContentControl>
+                </ScrollViewer>
+                </Border>
+                <!-- flight's clients datagrid -->
+                <DataGrid IsEnabled="{c:Binding !ShowingClients}" Background="#eef" hc:DataGridAttach.ShowRowNumber="True" RowHeaderWidth="40" ScrollViewer.CanContentScroll="False" FontSize="15" Grid.ColumnSpan="2" Grid.Row="1" RowHeight="45" HeadersVisibility="All" IsReadOnly="True" AlternationCount="{Binding Items.Count, RelativeSource={RelativeSource Self}}" PreviewKeyDown="clientsDataGrid_PreviewKeyDown" x:Name="clientsDataGrid" DisplayMemberPath="true" SelectionMode="Single" AutoGenerateColumns="False" ItemsSource="{Binding SelectedHostsList}" SelectedItem="{Binding SelectedHost}">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="LightGray"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Height" Value="35"/>
+                            <Setter Property="Padding" Value="10,0"/>
+                            <Setter Property="Margin" Value="5 0"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                            <Setter Property="Margin" Value="10,0"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Width" Value="auto"/>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="{Binding Client.Color}"/>
+                            <Setter Property="Margin" Value="0,2"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type DataGridRow}">
+                                        <Border x:Name="DGR_Border" BorderBrush="{TemplateBinding BorderBrush}" 
+                                        BorderThickness="{TemplateBinding BorderThickness}" 
+                                        Background="{TemplateBinding Background}" 
+                                        SnapsToDevicePixels="True"
+                                        CornerRadius="5">
+                                            <SelectiveScrollingGrid>
+                                                <SelectiveScrollingGrid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </SelectiveScrollingGrid.ColumnDefinitions>
+                                                <SelectiveScrollingGrid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </SelectiveScrollingGrid.RowDefinitions>
+                                                <DataGridCellsPresenter Grid.Column="1" ItemsPanel="{TemplateBinding ItemsPanel}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                <DataGridDetailsPresenter Grid.Column="1" Grid.Row="1" SelectiveScrollingGrid.SelectiveScrollingOrientation="{Binding AreRowDetailsFrozen, ConverterParameter={x:Static SelectiveScrollingOrientation.Vertical}, Converter={x:Static DataGrid.RowDetailsScrollingConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" Visibility="{TemplateBinding DetailsVisibility}"/>
+                                                <DataGridRowHeader Grid.RowSpan="2" SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical" Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Row}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                            </SelectiveScrollingGrid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.RowHeaderStyle>
+                        <Style TargetType="DataGridRowHeader">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Width" Value="0"/>
+                            <Setter Property="Padding" Value="10"/>
+                        </Style>
+                    </DataGrid.RowHeaderStyle>
+                    <DataGrid.Columns >
+                        <DataGridTemplateColumn Width="auto" Header="المتعامل">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Visibility="{Binding Company,Converter={StaticResource ObjToCollaps}}" >
+                                        <Ellipse HorizontalAlignment="Left" Height="30" Width="30">
+                                            <Ellipse.Fill>
+                                                <ImageBrush ImageSource="{Binding Company.Logo,Converter={StaticResource BytesToImage}}" Stretch="UniformToFill"/>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                        <TextBlock Margin="5 0 0 0" VerticalAlignment="Center" Text="{Binding Company.Name}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto" Header="اللقب و الإسم" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Client.FirstName}"/>
+                                        <TextBlock Text="{Binding Client.LastName}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock>
+                                            <Run FontWeight="Bold" Text="رقم جواز السفر : "/>
+                                            <Run Text="{Binding Client.PassportNumber}"/>
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run FontWeight="Bold" Text="تاريخ الميلاد : "/>
+                                            <Run Text="{Binding Client.BirthDate,StringFormat={}{0:dd/MM/yyyy}}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock>
+                                            <Run FontWeight="Bold" Text="الجنس : "/>
+                                            <Run Text="{Binding Client.Gender,Converter={StaticResource BoolToGender}}"/>
+                                        </TextBlock>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontWeight="Bold" Text="أرقام الهواتف"/>
+                                            <hc:SplitButton Cursor="Hand" Margin="5,0" Width="20" Height="15" BorderBrush="Transparent" Style="{DynamicResource SplitButtonDefault.Small}">
+                                                <hc:SplitButton.DropDownContent>
+                                                    <StackPanel Width="100" Margin="0">
+                                                        <ListView ItemsSource="{Binding Client.Phones}" Style="{DynamicResource ListViewStyle1 }"  Background="White" Padding="0" Margin="0" >
+
+                                                            <ListView.ItemContainerStyle>
+                                                                <Style TargetType="ListViewItem">
+                                                                    <Setter Property="Padding" Value="1"/>
+                                                                    <Setter Property="FontSize" Value="15"/>
+
+                                                                </Style>
+                                                            </ListView.ItemContainerStyle>
+                                                            <ListView.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding Number}"/>
+                                                                </DataTemplate>
+                                                            </ListView.ItemTemplate>
+                                                        </ListView>
+                                                    </StackPanel>
+                                                </hc:SplitButton.DropDownContent>
+                                            </hc:SplitButton>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto" Header="الفندق و الغرفة">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding HotelRoom.FlightHotel.Hotel.Name}"/>
+                                        <TextBlock Text="{Binding HotelRoom.Room.Type}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto" Header="الاعاشة">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Grid >
+                                            <iconPacks:PackIconMaterial Width="20" Height="20" Foreground="White" Kind="CheckboxBlank" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <iconPacks:PackIconForkAwesome Visibility="{Binding Client.Feed,Converter={StaticResource BoolToCollaps}}" Foreground="LimeGreen" Kind="Check" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                            <iconPacks:PackIconFontAwesome Visibility="{Binding Client.Feed,Converter={StaticResource ReverseBoolToCollaps}}" Foreground="Red" Kind="TimesSolid" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                        </Grid>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto" Header="المبلغ المطلوب">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding FullPrice,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto" Header="المبلغ المدفوع">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding PaidPrice,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto" Header="التخفيض">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Discount,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto" Header="المبلغ المتبقي">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" >
+                                        <TextBlock Visibility="{Binding IsPaid,Converter={StaticResource ReverseBoolToCollaps}}" Text="{Binding RemainingPrice,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                        <Grid Visibility="{Binding IsPaid,Converter={StaticResource BoolToCollaps}}">
+                                            <iconPacks:PackIconMaterial Width="20" Height="20" Foreground="White" Kind="CheckboxBlank" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <iconPacks:PackIconForkAwesome  Foreground="LimeGreen" Kind="Check" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                        </Grid>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="auto">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock>
+                                             <Run FontWeight="Bold" Text="الحالة الصحية : "/>
+                                             <Run Text="{Binding Client.HealthStatus}"/>
+                                        </TextBlock>
+                                        <TextBlock>
+                                             <Run FontWeight="Bold" Text="الملاحظة : "/>
+                                             <Run Text="{Binding Client.Description}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="55" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <hc:SplitButton Cursor="Hand" BorderBrush="Black"  Style="{DynamicResource SplitButtonDefault.Small}">
+                                        <hc:SplitButton.DropDownContent>
+                                            <StackPanel>
+                                                <Button Cursor="Hand" BorderThickness="0" x:Name="updateClientButton" hc:IconElement.Geometry="{StaticResource update}" Click="updateClientButton_Click" hc:IconElement.Height="13">
+                                                    <hc:Poptip.Instance>
+                                                        <hc:Poptip Content="تعديل المعتمر"  BorderBrush="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-90"/>
+                                                    </hc:Poptip.Instance>
+                                                </Button>
+                                                <Button Cursor="Hand" BorderThickness="0" x:Name="removeClientButton" hc:IconElement.Geometry="{StaticResource delete}" Click="removeClientButton_Click" hc:IconElement.Height="13">
+                                                    <hc:Poptip.Instance>
+                                                        <hc:Poptip Content="حذف المعتمر"  BorderBrush="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-82"/>
+                                                    </hc:Poptip.Instance>
+                                                </Button>
+                                                <Button Cursor="Hand" BorderThickness="0" x:Name="exportClientButton" hc:IconElement.Geometry="{StaticResource export}" Click="exportClientButton_Click" hc:IconElement.Height="13">
+                                                    <hc:Poptip.Instance>
+                                                        <hc:Poptip Content="طباعة عقد المعتمر"  BorderBrush="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-115"/>
+                                                    </hc:Poptip.Instance>
+                                                </Button>
+                                                <Button Cursor="Hand" BorderThickness="0" x:Name="exportClientPaymentButton" hc:IconElement.Geometry="{StaticResource addContract}" Click="exportClientPaymentButton_Click_1" hc:IconElement.Height="13">
+                                                    <hc:Poptip.Instance>
+                                                        <hc:Poptip Content="طباعة فاتورة المعتمر"  BorderBrush="Black" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-127"/>
+                                                    </hc:Poptip.Instance>
+                                                </Button>
+                                            </StackPanel>
+                                        </hc:SplitButton.DropDownContent>
+                                    </hc:SplitButton>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <hc:LoadingLine Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding FlightClientsLoadingLine,Converter={StaticResource BoolToCollaps}}" Margin="0,16"/>
+                <Border Visibility="{Binding ExporContractLoadingCircle,Converter={StaticResource BoolToCollaps}}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{DynamicResource PrimaryBrush}" CornerRadius="10">
+                    <hc:LoadingCircle Style="{StaticResource LoadingCircleLight}" Margin="10"/>
+                </Border>
+                <Border Visibility="{Binding ShowingClients,Converter={StaticResource BoolToCollaps}}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{DynamicResource PrimaryBrush}" CornerRadius="10">
+                    <hc:LoadingCircle Style="{StaticResource LoadingCircleLight}" Margin="10"/>
+                </Border>
+                <DockPanel Margin="10" FlowDirection="LeftToRight" Grid.Column="0" Grid.Row="2" LastChildFill="True" Grid.ColumnSpan="3" >
+                   <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+                        <Grid  Margin="5,0" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel  Grid.Column="0" HorizontalAlignment="Right">
+                                <TextBlock HorizontalAlignment="Right" FontSize="15" >
+                            <Run FontWeight="Bold" Text="مجموع المبالغ المطلوبة : "/> 
+                            <Run Text="{Binding FullPriceTotal,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                </TextBlock>
+                                <TextBlock HorizontalAlignment="Right" FontSize="15">
+                            <Run FontWeight="Bold" Text="مجموع المبالغ المتبقية : "/> 
+                            <Run Text="{Binding RemainingPriceTotal,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right" >
+                                <TextBlock HorizontalAlignment="Right" FontSize="15">
+                            <Run FontWeight="Bold" Text="مجموع التخفيضات  : "/> 
+                            <Run Text="{Binding DiscountTotal,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                </TextBlock>
+                                <TextBlock HorizontalAlignment="Right" FontSize="15">
+                            <Run FontWeight="Bold" Text="مجموع المبالغ المدفوعة : "/> 
+                            <Run Text="{Binding PaidPriceTotal,ConverterCulture='ar-DZ', StringFormat=c}"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" FlowDirection="RightToLeft">
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" FontWeight="Bold" Text=" مجموع المعتمرين "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" FontWeight="Bold" Text="CHD : "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text="{Binding SelectedFlight.Capacity}"/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text=" / "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text="{Binding CHDHostsTotal}" />
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" FlowDirection="RightToLeft">
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" FontWeight="Bold" Text=" مجموع المعتمرين "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" FontWeight="Bold" Text="INF : "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text="{Binding SelectedFlight.Capacity}"/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text=" / "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text="{Binding INFHostsTotal}" />
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" FlowDirection="RightToLeft">
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" FontWeight="Bold" Text=" مجموع المعتمرين "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" FontWeight="Bold" Text="ADT : "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text="{Binding SelectedFlight.Capacity}"/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text=" / "/>
+                                    <TextBlock FontSize="15" HorizontalAlignment="Right" Text="{Binding AdultHostsTotal}" />
+                                </StackPanel>
+                                <TextBlock HorizontalAlignment="Right" Grid.Column="3" FontSize="15" >
+                            <Run FontWeight="Bold" Text=" مجموع المعتمرين : "/> 
+                            <Run Text="{Binding SelectedFlight.Capacity}"/>
+                            <Run Text="/"/>
+                            <Run Text="{Binding HostsTotal}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </hc:TransitioningContentControl>
+                </DockPanel>
+                
+            </Grid>
+                
+        </TabItem>
+    </TabControl>
+</UserControl>

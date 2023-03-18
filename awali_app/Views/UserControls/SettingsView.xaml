@@ -1,0 +1,211 @@
+﻿<UserControl x:Class="Airfare.Views.UserControls.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Airfare.Views.UserControls"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:vm="clr-namespace:Airfare.ViewModels.UserControlViewModels" 
+             xmlns:cv="clr-namespace:Airfare.Converters"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d" 
+             FlowDirection="RightToLeft"
+             xmlns:con="clr-namespace:Airfare.ViewModels.Controls"
+             d:DesignHeight="850" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <vm:SettingsViewModel/>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <cv:BoolToCollapsConverter x:Key="BoolToCollaps"/>
+        <cv:BoolToGenderConverter x:Key="BoolToGender"/>
+        <cv:ReverseBoolToCollapsConverter x:Key="ReverseBoolToCollaps"/>
+        <cv:StartAtOne x:Key="StartAtOne"/>
+        <cv:BytesToImageConverter x:Key="BytesToImage"/>
+        <cv:ObjToCollapsConverter x:Key="ObjToCollaps"/>
+    </UserControl.Resources>
+    <hc:SimplePanel Background="Transparent">
+        <TabControl Background="Transparent" >
+            <TabItem FontSize="18" Background="Transparent" >
+                <TabItem.Header>
+                    <TextBlock Text="مقال عقد المعتمر" Foreground="#283BB9" />
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" CornerRadius="15" BorderThickness="0" Background="#eef" Margin="10"  Grid.Row="0" Padding="5"  >
+                        <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                            <StackPanel>
+                                
+                           
+                            <ToolBarTray VerticalAlignment="Top"  Orientation="Horizontal" >
+                                <ToolBar  Band="0" Header="رأس الصفحة">
+                                    <StackPanel Margin="10 0 10 0" VerticalAlignment="Center" >
+                                        <Button Cursor="Hand" hc:IconElement.Geometry="{StaticResource addImage}" Command="{Binding ImportHeaderCommand}">
+                                            <hc:Poptip.Instance>
+                                                <hc:Poptip  Foreground="Black" Content="أضف صورة لرأس الصفحة" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="55"/>
+                                            </hc:Poptip.Instance>
+                                        </Button>
+                                    </StackPanel>
+                                </ToolBar>
+                                <ToolBar Band="1" Header="تذييل الصفحة">
+                                    <StackPanel Margin="10 0 10 0" VerticalAlignment="Center" >
+                                        <Button Cursor="Hand" hc:IconElement.Geometry="{StaticResource addImage}" Command="{Binding ImportFooterCommand}">
+                                            <hc:Poptip.Instance>
+                                                <hc:Poptip Foreground="Black" Content="أضف صورة لتذييل الصفحة" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="55"/>
+                                            </hc:Poptip.Instance>
+                                        </Button>
+                                    </StackPanel>
+                                </ToolBar>
+                               
+                            </ToolBarTray>
+                            <ToolBarTray Orientation="Vertical">
+
+                                <ToolBar Band="0" Header="لائحة متغيرات الرحلة">
+                                    <StackPanel>
+                                        <TextBlock Margin="5" >
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightReturnNameCommand}">
+                                                رقم رحلة العودة
+                                            </Hyperlink>
+                                        </TextBlock>
+                                        <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightDepartNameCommand}">
+                                                رقم رحلة الذهاب
+                                            </Hyperlink>
+                                        </TextBlock>
+                                        <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightReturnDateCommand}">
+                                                تاريخ رحلة العودة
+                                            </Hyperlink>
+                                        </TextBlock>
+                                        <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightDepartDateCommand}">
+                                                تاريخ رحلة الذهاب
+                                            </Hyperlink>
+                                        </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightReturnTimeCommand}">
+                                                توقية رحلة العودة
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightDepartTimeCommand}">
+                                                توقية رحلة الذهاب
+                                            </Hyperlink>
+                                            </TextBlock> <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightReturnItineraryCommand}">
+                                                مسار رحلة العودة
+                                            </Hyperlink>
+                                            </TextBlock> <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightDepartItineraryCommand}">
+                                                مسار رحلة الذهاب
+                                            </Hyperlink>
+                                            </TextBlock> 
+                                        <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertFlightCapacityCommand}">
+                                                سعة الرحلة
+                                            </Hyperlink>
+                                            </TextBlock>
+                                        </StackPanel>
+                                </ToolBar>
+                                    <ToolBar Band="1" Header="لائحة متغيرات المعتمر">
+                                        <StackPanel>
+                                            <TextBlock Margin="5" >
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertClientFirstNameCommand}">
+                                                لقب المعتمر
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertClientLastNameCommand}">
+                                                اسم المعتمر
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertClientBirthDateCommand}">
+                                                تاريخ ميلاد المعتمر
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertClientGenderCommand}">
+                                                جنس المعتمر
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertClientPassportNumberCommand}">
+                                                رقم جواز السفر
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertClientHealthStatusCommand}">
+                                                الحالة الصحية
+                                            </Hyperlink>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </ToolBar>
+                                    <ToolBar Band="2" Header="لائحة متغيرات الفندق">
+                                        <StackPanel>
+                                            <TextBlock Margin="5" >
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertHotelNameCommand}">
+                                                اسم الفندق
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertHotelAddressCommand}">
+                                                عنوان الفندق الفندق
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertHotelDistanceCommand}">
+                                                مسافة البعد
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            <TextBlock Margin="5">
+                                            <Hyperlink Foreground="Blue" Command="{Binding InsertRoomTypeCommand}">
+                                                نوع الغرفة
+                                            </Hyperlink>
+                                            </TextBlock>
+                                            
+                                        </StackPanel>
+                                    </ToolBar>
+                                </ToolBarTray>
+                                <Button Cursor="Hand" HorizontalAlignment="Left" hc:IconElement.Geometry="{StaticResource save}" Command="{Binding SaveSettingsCommand}">
+                                    <hc:Poptip.Instance>
+                                        <hc:Poptip  Foreground="Black" Content="حفض" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="55"/>
+                                    </hc:Poptip.Instance>
+                                </Button>
+                            </StackPanel>
+                        </hc:TransitioningContentControl>
+                    </Border>
+                    <Border CornerRadius="15" BorderThickness="0" Background="#eef" Grid.Column="1" Margin="10"  Grid.Row="0" Padding="5"  >
+                        <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                            <DockPanel Background="White">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0">
+                                        <Border HorizontalAlignment="Center" VerticalAlignment="Top">
+                                            <Image Height="85" VerticalAlignment="Bottom" Grid.Column="1" Source="{Binding Environment.HeaderSource,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <DockPanel Grid.Row="1">
+                                            <TextBox Grid.Row="1" hc:InfoElement.Placeholder="المحتوي" Style="{DynamicResource TextBoxExtend}" Text="{Binding Environment.ClientContractContent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" />
+                                    </DockPanel>
+                                    <StackPanel Grid.Row="2">
+                                        <Border  HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                                            <Image Height="85"  VerticalAlignment="Bottom" Grid.Column="1" Source="{Binding Environment.FooterSource}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </DockPanel>
+                        </hc:TransitioningContentControl>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </hc:SimplePanel>
+</UserControl>

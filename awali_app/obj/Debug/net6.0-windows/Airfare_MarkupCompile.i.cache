@@ -1,0 +1,20 @@
+﻿Airfare
+1.0.0.0
+
+winexe
+C#
+.cs
+C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\obj\Debug\net6.0-windows\
+Airfare
+none
+false
+TRACE;DEBUG;NET;NET6_0;NETCOREAPP
+C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\App.xaml
+211254626652
+1-369114009
+93-1735557105
+271-1642472209
+Assets\Icons.xaml;Styles\MainStyle.xaml;Themes\LightTheme.xaml;Views\Dialogs\ClientDialog.xaml;Views\Dialogs\CompanyContractDialog.xaml;Views\Dialogs\CompanyDialog.xaml;Views\Dialogs\FlightDialog.xaml;Views\Dialogs\HotelDialog.xaml;Views\Dialogs\RoomDialog.xaml;Views\Dialogs\SeasonDialog.xaml;Views\Dialogs\YesNoDialog.xaml;Views\UserControls\CompaniesView.xaml;Views\UserControls\FlightView.xaml;Views\UserControls\HotelView.xaml;Views\UserControls\RoomView.xaml;Views\UserControls\SeasonsView.xaml;Views\UserControls\SettingsView.xaml;Views\UserControls\StatisticsView.xaml;Views\Windows\ErrorWindow.xaml;Views\Windows\MainWindow.xaml;Views\Windows\SignupWindow.xaml;
+
+False
+
