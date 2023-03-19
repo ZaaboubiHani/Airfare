@@ -8,6 +8,7 @@ namespace Airfare.DataContext
     public static class Configuration
     {
         public static SeasonModel CurrentSeason { get; set; }
+        public static UserModel CurrentUser { get; set; }
         public static string Server { get; set; }
     }
 }

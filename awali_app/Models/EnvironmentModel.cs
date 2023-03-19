@@ -15,16 +15,6 @@ namespace Airfare.Models
         [Key]
         public int Id { get; set; }
 
-        private string? _UserName;
-
-        public string? UserName
-        {
-            get { return _UserName; }
-            set { _UserName = value;
-                OnPropertyChanged(nameof(UserName));
-            }
-        }
-
         private string? _ClientContractContent;
 
         public string? ClientContractContent
@@ -54,16 +44,6 @@ namespace Airfare.Models
                 OnPropertyChanged(nameof(FooterSource));
             }
         }
-        private bool _KeepSigned;
-
-        public bool KeepSigned
-        {
-            get { return _KeepSigned; }
-            set { _KeepSigned = value;
-                OnPropertyChanged(nameof(KeepSigned));
-            }
-        }
-
 
     }
 }

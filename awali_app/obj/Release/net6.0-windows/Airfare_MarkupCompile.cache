@@ -11,9 +11,9 @@ false
 TRACE;RELEASE;NET;NET6_0;NETCOREAPP
 C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\App.xaml
 211254626652
-1-369114009
-91-67668972
-271487073828
+2-2062710581
+94-1107662730
+2901414617614
 Assets\Icons.xaml;Styles\MainStyle.xaml;Themes\LightTheme.xaml;Views\Dialogs\ClientDialog.xaml;Views\Dialogs\CompanyContractDialog.xaml;Views\Dialogs\CompanyDialog.xaml;Views\Dialogs\FlightDialog.xaml;Views\Dialogs\HotelDialog.xaml;Views\Dialogs\RoomDialog.xaml;Views\Dialogs\SeasonDialog.xaml;Views\Dialogs\YesNoDialog.xaml;Views\UserControls\CompaniesView.xaml;Views\UserControls\FlightView.xaml;Views\UserControls\HotelView.xaml;Views\UserControls\RoomView.xaml;Views\UserControls\SeasonsView.xaml;Views\UserControls\SettingsView.xaml;Views\UserControls\StatisticsView.xaml;Views\Windows\ErrorWindow.xaml;Views\Windows\MainWindow.xaml;Views\Windows\SignupWindow.xaml;
 
 False

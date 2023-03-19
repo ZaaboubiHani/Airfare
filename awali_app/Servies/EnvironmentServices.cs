@@ -63,11 +63,11 @@ namespace Airfare.Servies
                     using (var context = new DataBaseContext())
                     {
                         var foundedEnvironment = context.Environments.ToList().Find(e => e.Id == environment.Id);
-                        foundedEnvironment.KeepSigned = environment.KeepSigned;
+                       
                         foundedEnvironment.ClientContractContent = environment.ClientContractContent;
                         foundedEnvironment.FooterSource = environment.FooterSource;
                         foundedEnvironment.HeaderSource = environment.HeaderSource;
-                        foundedEnvironment.UserName = environment.UserName;
+                       
                         context.SaveChanges();
                     }
                     Error = false;

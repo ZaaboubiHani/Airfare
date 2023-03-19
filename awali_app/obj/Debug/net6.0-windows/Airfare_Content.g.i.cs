@@ -8,6 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("airfare.json")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("airfare.ico")]
 
 

@@ -19,8 +19,8 @@ namespace Airfare.ViewModels.WindowsViewModels
             }
         }
 
-
         readonly private SeasonServices seasonServices = new();
+
         public MainViewModel()
         {
             InitData();
@@ -29,8 +29,11 @@ namespace Airfare.ViewModels.WindowsViewModels
         {
             try
             {
-                var seasons = await seasonServices.GetAllSeasons();
-                Configuration.CurrentSeason = seasons.Where(s => !s.HasEnded).ToList().FirstOrDefault();
+                if(Configuration.CurrentSeason is null)
+                {
+                    var seasons = await seasonServices.GetAllSeasons();
+                    Configuration.CurrentSeason = seasons.Where(s => !s.HasEnded).ToList().FirstOrDefault();
+                }
                 EnableFeatures = true;
             }
             catch (Exception)

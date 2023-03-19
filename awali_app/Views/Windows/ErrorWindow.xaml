@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Airfare.Views.Windows" xmlns:vm="clr-namespace:Airfare.ViewModels.WindowsViewModels"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Title="ErrorWindow" Height="450" Width="800">
     <Window.DataContext>

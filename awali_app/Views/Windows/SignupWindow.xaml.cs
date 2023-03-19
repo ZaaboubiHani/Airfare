@@ -1,4 +1,5 @@
 ﻿using Airfare;
+using Airfare.ViewModels.WindowsViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,11 +26,25 @@ namespace Airfare.Views.Windows
             InitializeComponent();
         }
 
-        private void SignupButton_Click(object sender, RoutedEventArgs e)
+        private async void SignupButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow = new();
-            mainWindow.Show();
-            Close();
+            var pass = await (DataContext as SignupViewModel).Signup();
+            if (pass)
+            {
+                MainWindow mainWindow = new();
+                mainWindow.Show();
+                Close();
+            }
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            DragMove();
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            (DataContext as SignupViewModel).UserPassword = passowrdBox.Password;
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Airfare.ViewModels.WindowsViewModels
                 if (!string.IsNullOrEmpty(processorId) && !string.IsNullOrEmpty(macAdress) && !string.IsNullOrEmpty(serialNumber))
                 {
                     var folder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\";
-                    ErrorCode = "\n" + macAdress + "\n" + processorId + "\n" + serialNumber;
+                    ErrorCode = "706179206d65";
                     string fileName = "ErrorCode.txt";
                     string fullPath = folder + fileName;
                     string[] authors = { macAdress, processorId, serialNumber };

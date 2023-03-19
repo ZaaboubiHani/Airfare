@@ -29,5 +29,6 @@ namespace Airfare.DataContext
         public DbSet<GroupModel> Groups { get; set; }
         public DbSet<CompanyContractModel> CompanyContracts { get; set; }
         public DbSet<EnvironmentModel> Environments { get; set; }
+        public DbSet<UserModel> Users { get; set; }
     }
 }

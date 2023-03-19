@@ -8,6 +8,7 @@
         xmlns:hc="https://handyorg.github.io/handycontrol" 
         xmlns:vm="clr-namespace:Airfare.ViewModels.WindowsViewModels"
         Background="Transparent"
+        MouseDown="Window_MouseDown"
          WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"  WindowStyle="None" 
         Title="SignupWindow" Height="450" Width="800">
@@ -40,12 +41,12 @@
 
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock FontFamily="Belal" Margin="0 0 0 35" FontSize="25" HorizontalAlignment="Center" Text="تسجيل المستخدم"/>
-                <TextBox Margin="5" BorderBrush="LightBlue" Width="300" hc:InfoElement.Title="إسم المستخدم" FontSize="15" FlowDirection="RightToLeft" Style="{StaticResource TextBoxExtend}"/>
+                <TextBox Text="{Binding UserName}" Margin="5" BorderBrush="LightBlue" Width="300" hc:InfoElement.Title="إسم المستخدم" FontSize="15" FlowDirection="RightToLeft" Style="{StaticResource TextBoxExtend}"/>
 
-                <PasswordBox  Margin="5" BorderBrush="LightBlue" Width="300" hc:InfoElement.Title="كلمة السر" FontSize="15" FlowDirection="RightToLeft" Style="{StaticResource PasswordBoxExtend}"/>
+                <hc:PasswordBox PasswordBox.PasswordChanged="PasswordBox_PasswordChanged" ShowEyeButton="True" Margin="5" BorderBrush="LightBlue" Width="300" hc:InfoElement.Title="كلمة المرور" FontSize="15" FlowDirection="RightToLeft" x:Name="passowrdBox"/>
                 <StackPanel Margin="5" Width="300" Orientation="Horizontal" FlowDirection="RightToLeft">
                     <TextBlock VerticalAlignment="Center" Text="ابقني مسجلا" FontSize="15"/>
-                    <CheckBox BorderBrush="LightBlue" Cursor="Hand" Margin="10 5" BorderThickness="1" IsChecked="{Binding Flight.AH}"/>
+                    <CheckBox BorderBrush="LightBlue" Cursor="Hand" Margin="10 5" BorderThickness="1" IsChecked="{Binding KeepMeSigned}"/>
                 </StackPanel>
                 <Button Cursor="Hand" Click="SignupButton_Click" BorderBrush="Orange" FontSize="15" Height="40" Padding="20 0" Margin="10" HorizontalAlignment="Center" Content="دخول"/>
             </StackPanel>
