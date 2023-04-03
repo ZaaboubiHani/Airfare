@@ -7,20 +7,50 @@ using System.Text;
 namespace Airfare.Models
 {
     [Table("Companies")]
-    public class CompanyModel
+    public class CompanyModel : BaseModel
     {
+
         [Key]
         public int Id { get; set; }
-        public string Name { get; set; }
-        public byte[]? Logo { get; set; }
-        public List<HostModel>? Hosts { get; set; }
-        public List<CompanyPaymentModel>? Payments { get; set; }
+        private string _name;
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                SetProperty(ref _name, value);
+                ClearErrors(nameof(Name));
+
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    AddError(nameof(Name), "لا يمكن أن يكون الاسم فارغًا");
+                }
+            }
+        }
+        private byte[]? _logo;
+        public byte[]? Logo
+        {
+            get => _logo;
+            set => SetProperty(ref _logo, value);
+        }
+        private List<HostModel>? _hosts;
+        public List<HostModel>? Hosts
+        {
+            get => _hosts;
+            set => SetProperty(ref _hosts, value);
+        }
+        private List<CompanyPaymentModel>? _payments;
+        public List<CompanyPaymentModel>? Payments
+        {
+            get => _payments;
+            set => SetProperty(ref _payments, value);
+        }
 
         public override string ToString()
         {
             return Name;
         }
-
+    
         public static bool operator ==(CompanyModel company1, CompanyModel company2)
         {
             if (company1 is null)
@@ -61,7 +91,8 @@ namespace Airfare.Models
 
         public CompanyModel()
         {
-
+            ClearErrors(nameof(Name));
+            AddError(nameof(Name), "لا يمكن أن يكون الاسم فارغًا");
         }
     }
 }

@@ -10,52 +10,53 @@ namespace Airfare.Servies
 {
     public class CompanyPaymentServices : BaseServices
     {
-        public async Task AddCompanyPayment(CompanyPaymentModel companyPayment)
+        public async Task AddCompanyPayment(CompanyPaymentModel payment)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                if (!payment.HasErrors)
                 {
                     using (var context = new DataBaseContext())
                     {
-                        context.CompanyPayments.Add(companyPayment);
-                        context.SaveChanges();
+                        context.CompanyPayments.Add(payment);
+                        await context.SaveChangesAsync();
                     }
-
                     Error = false;
                 }
-                catch (Exception e)
+                else
                 {
                     Error = true;
-                    ErrorMessage = e.Message;
+                    var errors = payment.GetAllErrors();
+                    ErrorMessage = errors.FirstOrDefault() ?? "Unknown error";
                 }
-            });
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
-        public async Task RemoveCompanyPayment(CompanyPaymentModel companyPayment)
+        public async Task RemoveCompanyPayment(int paymentId)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.CompanyPayments.FindAsync(paymentId);
+                    if (entity != null)
                     {
-                        if (!context.CompanyPayments.Local.Contains(companyPayment))
-                        {
-                            context.CompanyPayments.Attach(companyPayment);
-                        }
-                        context.CompanyPayments.Remove(companyPayment);
-                        context.SaveChanges();
+                        context.CompanyPayments.Remove(entity);
+                        await context.SaveChangesAsync();
                     }
-
-                    Error = false;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
     }
 }

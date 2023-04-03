@@ -36,109 +36,93 @@ namespace Airfare.ViewModels.WindowsViewModels
         private readonly ControlDeviceService controlDeviceService = new();
         private readonly SeasonServices seasonServices = new();
 
-        public LoadingViewModel()
-        {
-        }
-
+       
         public async Task<bool> InitData()
         {
 
             try
             {
+                // Get the current available season if not already set in configuration
                 Information = "getting current available season";
                 if (Configuration.CurrentSeason is null)
                 {
-                    var seasons = await seasonServices.GetAllSeasons();
-                    Configuration.CurrentSeason = seasons.Where(s => !s.HasEnded).ToList().FirstOrDefault();
+                    Configuration.CurrentSeason = await seasonServices.GetFirstActiveSeason();
                 }
 
+                // Set the environment template
                 Information = "setting the environment template";
-                EnvironmentModel environment = await environmentServices.GetEnvironment();
-                if (environment == null)
-                {
-                    environment = new() { ClientContractContent = string.Empty };
-                    await environmentServices.AddEnvironment(environment);
-                }
+                var environment = await environmentServices.GetEnvironment() ?? new EnvironmentModel { ClientContractContent = string.Empty };
+                await environmentServices.AddEnvironment(environment);
 
-
+                // Set the user domain and security
                 Information = "setting the user domain and security";
-                UserModel user = await userServices.GetUser();
-                if (user is null)
-                {
-                    user = new() { Name = "Admin", Password = "Admin", IsAdmin = true};
-                    await userServices.AddUser(user);
-                }
-                else
-                {
-                    Configuration.CurrentUser = user;
-                }
+                var user = await userServices.GetUser() ?? new UserModel { Name = "Admin", Password = "Admin", IsAdmin = true };
+                await userServices.AddUser(user);
+                Configuration.CurrentUser = user;
 
+                // Check device compatibility
                 Information = "checking device compatibility";
                 var devices = await controlDeviceService.GetAllDevices();
                 string processorId = DeviceManagement.GetProcessorId();
                 string pcName = Environment.MachineName;
-                ControlDeviceModel currentDevice = null;
-                if (devices.Select(d => d.DeviceId).Contains(processorId))
+                var currentDevice = devices.FirstOrDefault(d => d.DeviceId == processorId);
+                if (currentDevice is null)
                 {
-                    currentDevice = devices.Where(d => d.DeviceId == processorId).FirstOrDefault();
-                }
-                else
-                {
-                    await controlDeviceService.UploadDevice(new() { DeviceId = processorId, ExpirationDate = DateTime.UtcNow.AddMonths(1),MachineName = pcName });
+                    await controlDeviceService.UploadDevice(new ControlDeviceModel { DeviceId = processorId, ExpirationDate = DateTime.UtcNow.AddMonths(1), MachineName = pcName });
                 }
 
+                // Update configuration settings based on device compatibility
+                Information = "Updating configuration settings based on device compatibility";
                 if (currentDevice != null)
                 {
-                    if ( (processorId == "BFEBFBFF000806EA" || processorId == "BFEBFBFF000306C3") && currentDevice.ExpirationDate.Date.CompareTo(DateTime.Now.Date) > 0)
-                    {
-                        if (Configuration.CurrentUser.KeepSigned)
-                        {
-                            MainWindow mainWindow = new();
-                            mainWindow.Show();
-                        }
-                        else
-                        {
-                            SignupWindow signupWindow = new();
-                            signupWindow.Show();
-                        }
-                        
-                    }
-                    else
-                    {
-                        ErrorWindow errorWindow = new();
-                        errorWindow.Show();
-                    }
+                    var oConfig = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.None);
+                    var isCompatible = (processorId == "BFEBFBFF000806EA" || processorId == "BFEBFBFF000306C3") && currentDevice.ExpirationDate.Date.CompareTo(DateTime.UtcNow.Date) > 0;
+                    oConfig.AppSettings.Settings["Accessibility"].Value = isCompatible ? "True" : "False";
+                    oConfig.Save(System.Configuration.ConfigurationSaveMode.Full);
+                    System.Configuration.ConfigurationManager.RefreshSection("appSettings");
                 }
-                else
+
+                // Get the accessibility setting from configuration and show appropriate window
+                var value = bool.Parse(System.Configuration.ConfigurationManager.AppSettings["Accessibility"]);
+                switch (value)
                 {
-                    if (Configuration.CurrentUser.KeepSigned)
-                    {
-                        MainWindow mainWindow = new();
-                        mainWindow.Show();
-                    }
-                    else
-                    {
-                        SignupWindow signupWindow = new();
-                        signupWindow.Show();
-                    }
+                    case false:
+                        new ErrorWindow().Show();
+                        break;
+                    case true when Configuration.CurrentUser.KeepSigned:
+                        new MainWindow().Show();
+                        break;
+                    case true:
+                        new SignupWindow().Show();
+                        break;
                 }
+
+               
             }
             catch (Exception e)
             {
-                if (Configuration.CurrentUser.KeepSigned)
-                {
-                    MainWindow mainWindow = new();
-                    mainWindow.Show();
-                }
-                else
-                {
-                    SignupWindow signupWindow = new();
-                    signupWindow.Show();
-                }
+                // Show error message if initialization fails
+                HandleInitializationError();
                 Growl.ErrorGlobal(e.Message);
             }
             return true;
 
+        }
+        private void HandleInitializationError()
+        {
+            var value = bool.Parse(System.Configuration.ConfigurationManager.AppSettings["Accessibility"]);
+            switch (value)
+            {
+                case false:
+                    new ErrorWindow().Show();
+                    break;
+                case true when Configuration.CurrentUser.KeepSigned:
+                    new MainWindow().Show();
+                    break;
+                case true:
+                    new SignupWindow().Show();
+                    break;
+            }
         }
     }
 }

@@ -62,16 +62,6 @@ namespace Airfare.ViewModels.UserControlViewModels
             }
         }
 
-        private SeasonModel _CurrentSeason;
-
-        public SeasonModel CurrentSeason
-        {
-            get { return _CurrentSeason; }
-            set { _CurrentSeason = value;
-                OnPropertyChanged(nameof(CurrentSeason));
-            }
-        }
-
         #endregion
 
         #region Services
@@ -79,7 +69,6 @@ namespace Airfare.ViewModels.UserControlViewModels
         #endregion
 
         #region Commands
-        public RelayCommand AddSeasonCommand { get; set; }
         public RelayCommand RemoveSeasonCommand { get; set; }
         public RelayCommand ShowSeasonDialogCommand { get; set; }
         public RelayCommand EndSeasonCommand { get; set; }
@@ -88,7 +77,6 @@ namespace Airfare.ViewModels.UserControlViewModels
         public SeasonsViewModel()
         {
             InitData();
-            AddSeasonCommand = new(AddSeason);
             RemoveSeasonCommand = new(RemoveSeason);
             ShowSeasonDialogCommand = new(ShowSeasonDialog);
             EndSeasonCommand = new(EndSeason);
@@ -152,7 +140,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                 bool result = await Dialog.Show<YesNoDialog>().Initialize<YesNoDialogViewModel>(vm => vm.Description = "هل أنت متأكد أنك تريد حذف هذا الموسم؟").GetResultAsync<bool>();
                 if (result)
                 {
-                    await seasonServices.RemoveSeason(SelectedSeason);
+                    await seasonServices.RemoveSeason(SelectedSeason.Id);
                     if (!seasonServices.Error)
                     {
                         InitData();
@@ -178,7 +166,7 @@ namespace Airfare.ViewModels.UserControlViewModels
             try
             {
                 LoadingLine = true;
-                CurrentSeason = new SeasonModel();
+               
                 SeasonsList = new ObservableCollection<SeasonModel>(await seasonServices.GetAllSeasons());
                 if (Configuration.CurrentSeason is null)
                 {
@@ -186,6 +174,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                     if (createdSeason != null)
                     {
                         Configuration.CurrentSeason = createdSeason;
+
                         InitData();
                     }
                 }
@@ -199,36 +188,10 @@ namespace Airfare.ViewModels.UserControlViewModels
             
         }
 
-        private async void AddSeason()
-        {
-            try
-            {
-                LoadingCircle = true;
-                await seasonServices.AddSeason(CurrentSeason);
-                if (!seasonServices.Error)
-                {
-
-                    SeasonsList.Add(CurrentSeason);
-                    Configuration.CurrentSeason = CurrentSeason;
-                    InitData();
-                    Growl.Success("تمت إضافة الموسم بنجاح");
-                }
-                else
-                {
-                    Growl.Error("\n:خطأ\n" + seasonServices.ErrorMessage);
-                }
-                LoadingCircle = false;
-
-            }
-            catch (Exception)
-            {
-                LoadingCircle = false;
-                Growl.Error("An error has occurred while trying to add a season");
-            }
-        }
+       
         public void Dispose()
         {
-            GC.Collect();
+            
         }
         #endregion
 

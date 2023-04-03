@@ -68,7 +68,7 @@ namespace Airfare.Views.Dialogs {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Airfare;component/views/dialogs/seasondialog.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Airfare;V1.0.0.0;component/views/dialogs/seasondialog.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\..\Views\Dialogs\SeasonDialog.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

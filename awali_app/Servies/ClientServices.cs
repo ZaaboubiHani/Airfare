@@ -13,115 +13,125 @@ namespace Airfare.Servies
     {
         public async Task AddClient(ClientModel client)
         {
-            await Task.Run(() =>
+            try
             {
-                try
-                {
-                    if(string.IsNullOrEmpty(client.LastName) || string.IsNullOrWhiteSpace(client.LastName))
-                    {
-                        Error = true;
-                        ErrorMessage = "عليك كتابة اسم المعتمر";
-                    }
-                    else if (string.IsNullOrEmpty(client.FirstName) || string.IsNullOrWhiteSpace(client.FirstName))
-                    {
-                        Error = true;
-                        ErrorMessage = "عليك كتابة لقب المعتمر";
-                    }
-                    else
-                    {
-                        using (var context = new DataBaseContext())
-                        {
-                            context.Clients.Add(client);
-                            context.SaveChanges();
-                        }
-                        
-                        Error = false;
-                    }
-                }
-                catch (Exception e)
+                if (string.IsNullOrEmpty(client.LastName) || string.IsNullOrWhiteSpace(client.LastName))
                 {
                     Error = true;
-                    ErrorMessage = e.Message;
+                    ErrorMessage = "عليك كتابة اسم المعتمر";
+                    return;
                 }
-            });
-        }
 
-        public async Task UpdateClient(ClientModel client)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    if (string.IsNullOrEmpty(client.LastName) || string.IsNullOrWhiteSpace(client.LastName))
-                    {
-                        Error = true;
-                        ErrorMessage = "عليك كتابة اسم المعتمر";
-                    }
-                    else if (string.IsNullOrEmpty(client.FirstName) || string.IsNullOrWhiteSpace(client.FirstName))
-                    {
-                        Error = true;
-                        ErrorMessage = "عليك كتابة لقب المعتمر";
-                    }
-                    else
-                    {
-                        using (var context = new DataBaseContext())
-                        {
-                            var foundedClient = context.Clients.ToList().Find(c => c.Id == client.Id);
-                            foundedClient.IsMinor = client.IsMinor;
-                            foundedClient.Color = client.Color;
-                            foundedClient.FirstName = client.FirstName;
-                            foundedClient.LastName = client.LastName;
-                            foundedClient.PassportNumber = client.PassportNumber;
-                            foundedClient.Description = client.Description;
-                            foundedClient.BirthDate = client.BirthDate;
-                            foundedClient.Gender = client.Gender;
-                            foundedClient.Feed = client.Feed;
-                            foundedClient.HealthStatus = client.HealthStatus;
-                            foundedClient.IsGuide = client.IsGuide;
-
-                            context.SaveChanges();
-                        }
-                       
-                        Error = false;
-                    }
-                }
-                catch (Exception e)
+                if (string.IsNullOrEmpty(client.FirstName) || string.IsNullOrWhiteSpace(client.FirstName))
                 {
                     Error = true;
-                    ErrorMessage = e.Message;
+                    ErrorMessage = "عليك كتابة لقب المعتمر";
+                    return;
                 }
-            });
-        }
-
-       
-       
-
-        public async Task RemoveClient(ClientModel client)
-        {
-            await Task.Run(() =>
-            {
-                try
+                if (!client.HasErrors)
                 {
                     using (var context = new DataBaseContext())
                     {
-                        if (!context.Clients.Local.Contains(client))
-                        {
-                            context.Clients.Attach(client);
-                        }
-                        context.Clients.Remove(client);
-                        context.SaveChanges();
-
+                        context.Clients.Add(client);
+                        await context.SaveChangesAsync();
                     }
-                    //TODO: Remove all the phones too
                     Error = false;
-                       
                 }
-                catch (Exception e)
+                else
                 {
                     Error = true;
-                    ErrorMessage = e.Message;
+                    var errors = client.GetAllErrors();
+                    ErrorMessage = errors.FirstOrDefault() ?? "Unknown error";
                 }
-            });
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
+        }
+
+
+       
+
+        public async Task UpdateClient(ClientModel client)
+        {
+           
+            try
+            {
+                if (string.IsNullOrEmpty(client.LastName) || string.IsNullOrWhiteSpace(client.LastName))
+                {
+                    Error = true;
+                    ErrorMessage = "عليك كتابة اسم المعتمر";
+                }
+                else if (string.IsNullOrEmpty(client.FirstName) || string.IsNullOrWhiteSpace(client.FirstName))
+                {
+                    Error = true;
+                    ErrorMessage = "عليك كتابة لقب المعتمر";
+                }
+                else
+                {
+                    using (var context = new DataBaseContext())
+                    {
+                        var entity = context.Clients.FirstOrDefault(c => c.Id == client.Id);
+                        if (entity == null)
+                        {
+                            Error = true;
+                            ErrorMessage = "Client not found";
+                            return;
+                        }
+                        // update properties
+                        entity.IsMinor = client.IsMinor;
+                        entity.Color = client.Color;
+                        entity.FirstName = client.FirstName;
+                        entity.LastName = client.LastName;
+                        entity.PassportNumber = client.PassportNumber;
+                        entity.Description = client.Description;
+                        entity.BirthDate = client.BirthDate;
+                        entity.Gender = client.Gender;
+                        entity.Feed = client.Feed;
+                        entity.HealthStatus = client.HealthStatus;
+                        entity.IsGuide = client.IsGuide;
+
+                        await context.SaveChangesAsync();
+
+                    }
+
+                    Error = false;
+                }
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
+            
+        }
+
+
+
+
+        public async Task RemoveClient(int clientId)
+        {
+
+            try
+            {
+                using (var context = new DataBaseContext())
+                {
+                    var entity = await context.Clients.FindAsync(clientId);
+                    if (entity != null)
+                    {
+                        context.Clients.Remove(entity);
+                        await context.SaveChangesAsync();
+                    }
+                }
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
     }
 }

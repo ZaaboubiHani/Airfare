@@ -7,13 +7,28 @@ using System.Text;
 namespace Airfare.Models
 {
     [Table("Seasons")]
-    public class SeasonModel
+    public class SeasonModel : BaseModel
     {
         [Key]
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public bool HasEnded { get; set; }
+        private int _id;
+        public int Id { get => _id; set => SetProperty(ref _id, value); }
+
+        private string _name;
+        public string Name { get => _name; set => SetProperty(ref _name, value); }
+
+        private DateTime _startDate;
+        public DateTime StartDate { get => _startDate; set => SetProperty(ref _startDate, value); }
+
+        private DateTime? _endDate;
+        public DateTime? EndDate { get => _endDate; set => SetProperty(ref _endDate, value); }
+
+        private bool _hasEnded;
+        public bool HasEnded { get => _hasEnded; set => SetProperty(ref _hasEnded, value); }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
+

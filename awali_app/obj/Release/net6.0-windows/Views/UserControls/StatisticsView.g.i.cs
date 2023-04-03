@@ -77,7 +77,7 @@ namespace Airfare.Views.UserControls {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Airfare;component/views/usercontrols/statisticsview.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Airfare;V1.0.0.0;component/views/usercontrols/statisticsview.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\..\Views\UserControls\StatisticsView.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

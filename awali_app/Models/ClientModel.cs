@@ -10,42 +10,51 @@ using System.Threading.Tasks;
 namespace Airfare.Models
 {
     [Table("Clients")]
-    public class ClientModel:BaseViewModel
+    public class ClientModel : BaseModel
     {
         [Key]
-        public int Id { get; set; }
-        private string _FirstName;
-        public string FirstName { get { return _FirstName; } set { _FirstName = value; OnPropertyChanged(nameof(FirstName)); } }
-        private string _LastName;
-        public string LastName { get { return _LastName; } set { _LastName = value; OnPropertyChanged(nameof(LastName)); } }
-        private DateTime _BirthDate;
-        public DateTime BirthDate { get { return _BirthDate; } set { _BirthDate = value; OnPropertyChanged(nameof(BirthDate)); } }
-        private string? _PassportNumber;
-        public string? PassportNumber { get { return _PassportNumber; } set { _PassportNumber = value; OnPropertyChanged(nameof(PassportNumber)); } }
-        private string? _HealthStatus;
-        public string? HealthStatus { get { return _HealthStatus; } set { _HealthStatus = value; OnPropertyChanged(nameof(HealthStatus)); } }
-        private bool _Gender;
-        public bool Gender { get { return _Gender; } set { _Gender = value; OnPropertyChanged(nameof(Gender)); } }
-        public bool IsMinor { get; set; }
-        private bool _Feed;
-        public bool Feed { get { return _Feed; } set { _Feed = value; OnPropertyChanged(nameof(Feed)); } }
-        private bool _IsGuide;
-        public bool IsGuide { get { return _IsGuide; } set { _IsGuide = value; OnPropertyChanged(nameof(IsGuide)); } }
-        private string? _Description;
-        public string? Description { get { return _Description; } set { _Description = value; OnPropertyChanged(nameof(Description)); } }
-        private string? _Color;
-        public string? Color { get { return _Color; } set { _Color = value; OnPropertyChanged(nameof(Color)); } }
-        private List<PhoneModel> _Phones;
-        public List<PhoneModel> Phones { get { return _Phones; } set { _Phones = value; OnPropertyChanged(nameof(Phones)); } }
-       
+        private int _id;
+        public int Id { get => _id; set => SetProperty(ref _id, value); }
+
+        private string _firstName;
+        public string FirstName { get => _firstName; set => SetProperty(ref _firstName, value); }
+
+        private string _lastName;
+        public string LastName { get => _lastName; set => SetProperty(ref _lastName, value); }
+
+        private DateTime _birthDate;
+        public DateTime BirthDate { get => _birthDate; set => SetProperty(ref _birthDate, value); }
+
+        private string? _passportNumber;
+        public string? PassportNumber { get => _passportNumber; set => SetProperty(ref _passportNumber, value); }
+
+        private string? _healthStatus;
+        public string? HealthStatus { get => _healthStatus; set => SetProperty(ref _healthStatus, value); }
+
+        private bool _gender;
+        public bool Gender { get => _gender; set => SetProperty(ref _gender, value); }
+
+        private bool _isMinor;
+        public bool IsMinor { get => _isMinor; set => SetProperty(ref _isMinor, value); }
+
+        private bool _feed;
+        public bool Feed { get => _feed; set => SetProperty(ref _feed, value); }
+
+        private bool _isGuide;
+        public bool IsGuide { get => _isGuide; set => SetProperty(ref _isGuide, value); }
+
+        private string? _description;
+        public string? Description { get => _description; set => SetProperty(ref _description, value); }
+
+        private string? _color;
+        public string? Color { get => _color; set => SetProperty(ref _color, value); }
+
+        private List<PhoneModel> _phones = new List<PhoneModel>();
+        public List<PhoneModel> Phones { get => _phones; set => SetProperty(ref _phones, value); }
+
         public override string ToString()
         {
-            return FirstName.ToString()+" "+LastName.ToString();
-        }
-
-        public ClientModel()
-        {
-
+            return $"{FirstName} {LastName}";
         }
     }
 }

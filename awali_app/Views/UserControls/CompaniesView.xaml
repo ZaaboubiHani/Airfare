@@ -362,9 +362,11 @@
                     <StackPanel>
                         <TextBlock Text="الشعار"/>
                         <hc:ImageSelector ImageSelected="ImageSelector_ImageSelected" ImageUnselected="ImageSelector_ImageUnselected" HorizontalAlignment="Left" Margin=" 0 20 0 20" Width="100" Height="100" hc:BorderElement.CornerRadius="50" StrokeDashArray="10,5"/>
-                        <hc:TextBox FontSize="20" Text="{Binding Company.Name}" hc:TitleElement.Title="الاسم"/>
+                            <hc:TextBox FontSize="20" Text="{Binding Company.Name,UpdateSourceTrigger=PropertyChanged}" hc:TitleElement.Title="الاسم">
+                            
+                            </hc:TextBox>
                         <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="15">
-                                <Button Cursor="Hand" BorderBrush="{DynamicResource PrimaryGrayColor}" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource plus}" hc:IconElement.Height="17" Command="{Binding AddCompanyCommand}">
+                                <Button IsEnabled="{c:Binding 'Company.Name.Length'}" Cursor="Hand" BorderBrush="{DynamicResource PrimaryGrayColor}" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource plus}" hc:IconElement.Height="17" Command="{Binding AddCompanyCommand}">
                                 <hc:Poptip.Instance>
                                     <hc:Poptip Content="أضف المتعامل" Delay="0" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="45"/>
                                 </hc:Poptip.Instance>

@@ -31,8 +31,7 @@ namespace Airfare.ViewModels.WindowsViewModels
             {
                 if(Configuration.CurrentSeason is null)
                 {
-                    var seasons = await seasonServices.GetAllSeasons();
-                    Configuration.CurrentSeason = seasons.Where(s => !s.HasEnded).ToList().FirstOrDefault();
+                    Configuration.CurrentSeason = await seasonServices.GetFirstActiveSeason();
                 }
                 EnableFeatures = true;
             }

@@ -76,7 +76,7 @@ namespace Airfare.Views.Dialogs {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Airfare;component/views/dialogs/hoteldialog.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Airfare;V1.0.0.0;component/views/dialogs/hoteldialog.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\..\Views\Dialogs\HotelDialog.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
