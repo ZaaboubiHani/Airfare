@@ -4,78 +4,84 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using System.Data.Entity;
+
+
 
 namespace Airfare.Servies
 {
-    public class CompanyServices:BaseServices
+    public class CompanyServices : BaseServices
     {
         public async Task AddCompany(CompanyModel company)
         {
-            await Task.Run(() =>
+
+            try
             {
-                try
+                if (!company.HasErrors)
                 {
                     using (var context = new DataBaseContext())
                     {
                         context.Companies.Add(company);
-                        context.SaveChanges();
+                        await context.SaveChangesAsync();
                     }
                     Error = false;
                 }
-                catch (Exception e)
+                else
                 {
                     Error = true;
-                    ErrorMessage = e.Message;
+                    var g = (IEnumerable<string>)company.GetErrors(nameof(company.Name));
+                    ErrorMessage = g.FirstOrDefault();
+                    return;
                 }
-            });
-        }
-        public async Task RemoveCompany(CompanyModel company)
-        {
-            await Task.Run(() =>
+            }
+            catch (Exception e)
             {
-                try
-                {
-                    using (var context = new DataBaseContext())
-                    {
-                        if (!context.Companies.Local.Contains(company))
-                        {
-                            context.Companies.Attach(company);
-                        }
-                        context.Companies.Remove(company);
-                        context.SaveChanges();
-                    }
-                    Error = false;
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
+        public async Task RemoveCompany(int companyId)
+        {
+            try
+            {
+                using (var context = new DataBaseContext())
+                {
+                    var entity = await context.Companies.FindAsync(companyId);
+                    if (entity != null)
+                    {
+                        context.Companies.Remove(entity);
+                        await context.SaveChangesAsync();
+                    }
+                }
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
+        }
+
         public async Task UpdateCompany(CompanyModel company)
         {
-            await Task.Run(() =>
+
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        var foundedCompany = context.Companies.ToList().Find(c => c.Id == company.Id);
-                        foundedCompany.Name = company.Name;
-                        foundedCompany.Logo = company.Logo;
-                        context.SaveChanges();
-                    }
-                    Error = false;
+                    var foundedCompany = context.Companies.ToList().Find(c => c.Id == company.Id);
+                    foundedCompany.Name = company.Name;
+                    foundedCompany.Logo = company.Logo;
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
         public async Task<CompanyModel> GetCompany(int id)
@@ -100,6 +106,8 @@ namespace Airfare.Servies
             return company;
         }
 
+
+
         public async Task<List<HostModel>> GetCompanyHostsList(int id)
         {
             var hosts = new List<HostModel>();
@@ -109,7 +117,7 @@ namespace Airfare.Servies
                 {
                     using (var context = new DataBaseContext())
                     {
-                        hosts = context.Companies.Include("Hosts").Include("Hosts.Client").Include("Hosts.HotelRoom.FlightHotel").Include("Hosts.HotelRoom.FlightHotel.Flight").Include("Hosts.HotelRoom.FlightHotel.Hotel").Include("Hosts.HotelRoom.Room").Include("Hosts.HotelRoom").Where(c => c.Id == id).ToList().FirstOrDefault().Hosts.Where(h=>h.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id).ToList();
+                        hosts = context.Companies.Include("Hosts").Include("Hosts.Client").Include("Hosts.HotelRoom.FlightHotel").Include("Hosts.HotelRoom.FlightHotel.Flight").Include("Hosts.HotelRoom.FlightHotel.Hotel").Include("Hosts.HotelRoom.Room").Include("Hosts.HotelRoom").Where(c => c.Id == id).ToList().FirstOrDefault().Hosts.Where(h => h.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id).ToList();
                     }
                     Error = false;
                 }
@@ -122,32 +130,40 @@ namespace Airfare.Servies
             return hosts;
         }
 
+
         public async Task<List<CompanyModel>> GetAllCompanies()
         {
-            var companies = new List<CompanyModel>();
-            await Task.Run(() =>
+            try
             {
-                try
+                return await Task.Run(() =>
                 {
                     using (var context = new DataBaseContext())
                     {
-                        companies = context.Companies.Include("Payments").Include("Payments.Company").Include("Payments.Payments").Include("Payments.Flight").ToList();
-                        for(int i = 0; i < companies.Count; i++)
+                        var companies =  context.Companies
+         .Include(c => c.Payments.Select(p => p.Flight))
+         .Include(c => c.Payments.Select(p => p.Company))
+         .Include(c => c.Payments.Select(p => p.Payments))
+         .ToList();
+                        foreach (var company in companies)
                         {
-                            companies[i].Payments = companies[i].Payments.Where(p => p.Flight.SeasonId == Configuration.CurrentSeason.Id).ToList();
+                            company.Payments = company.Payments.Where(p => p.Flight.SeasonId == Configuration.CurrentSeason.Id).ToList();
                         }
+                        return companies;
                     }
-                    Error = false;
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return companies;
+                }).ConfigureAwait(false);
+
+               
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
 
-      
+
+
+
     }
 }

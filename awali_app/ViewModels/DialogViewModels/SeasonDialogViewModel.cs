@@ -66,7 +66,6 @@ namespace Airfare.ViewModels.DialogViewModels
 
         public SeasonDialogViewModel()
         {
-            InitData();
             InitCommands();
         }
 
@@ -84,6 +83,7 @@ namespace Airfare.ViewModels.DialogViewModels
 
             if (!seasonServices.Error)
             {
+                var prevSeason = await seasonServices.GetFirstActiveSeason();
                 Growl.Success("تمت إضافة الموسم بنجاح");
                 close.Invoke();
             }
@@ -93,10 +93,7 @@ namespace Airfare.ViewModels.DialogViewModels
             }
         }
 
-        private void InitData()
-        {
-           
-        }
+        
 
         private async void UpdateSeason()
         {

@@ -4783,6 +4783,7 @@
       "MahApps.Metro.IconPacks.Modern >= 4.11.0",
       "MahApps.Metro.IconPacks.Octicons >= 4.11.0",
       "MahApps.Metro.IconPacks.SimpleIcons >= 4.11.0",
+      "Microsoft.Bcl.AsyncInterfaces >= 6.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 6.0.12",
       "Microsoft.EntityFrameworkCore.SqlServer >= 6.0.12",
       "Microsoft.EntityFrameworkCore.Tools >= 6.0.12",
@@ -4889,6 +4890,10 @@
           "MahApps.Metro.IconPacks.SimpleIcons": {
             "target": "Package",
             "version": "[4.11.0, )"
+          },
+          "Microsoft.Bcl.AsyncInterfaces": {
+            "target": "Package",
+            "version": "[6.0.0, )"
           },
           "Microsoft.EntityFrameworkCore.Design": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",

@@ -2,6 +2,7 @@
 using Airfare.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,103 +11,110 @@ namespace Airfare.Servies
 {
     public class CompanyContractServices : BaseServices
     {
-        public async Task AddCompanyContract(CompanyContractModel companyContract)
+        
+
+        public async Task AddCompanyContract(CompanyContractModel contract)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                if (!contract.HasErrors)
                 {
                     using (var context = new DataBaseContext())
                     {
-                        context.CompanyContracts.Add(companyContract);
-                        context.SaveChanges();
+                        context.CompanyContracts.Add(contract);
+                        await context.SaveChangesAsync();
                     }
-
                     Error = false;
                 }
-                catch (Exception e)
+                else
                 {
                     Error = true;
-                    ErrorMessage = e.Message;
+                    var errors = contract.GetAllErrors();
+                    ErrorMessage = errors.FirstOrDefault() ?? "Unknown error";
                 }
-            });
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
+
 
         public async Task UpdateCompanyContract(CompanyContractModel companyContract)
         {
-            await Task.Run(() =>
+         
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        var foundedCompanyContract = context.CompanyContracts.ToList().Find(h => h.Id == companyContract.Id);
-                        foundedCompanyContract.Price = companyContract.Price;
-                        foundedCompanyContract.PaidNumber = companyContract.PaidNumber;
-                        foundedCompanyContract.RoomsNumber = companyContract.RoomsNumber;
-                        foundedCompanyContract.CompanyId = companyContract.CompanyId;
-                        foundedCompanyContract.HotelRoomId = companyContract.HotelRoomId;
-                        context.SaveChanges();
-                    }
+                    var entity = await context.CompanyContracts.FindAsync(companyContract.Id);
+                    entity.Price = companyContract.Price;
+                    entity.PaidNumber = companyContract.PaidNumber;
+                    entity.RoomsNumber = companyContract.RoomsNumber;
+                    entity.CompanyId = companyContract.CompanyId;
+                    entity.HotelRoomId = companyContract.HotelRoomId;
+                    await context.SaveChangesAsync();
+                }
 
-                    Error = false;
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
-        public async Task<List<CompanyContractModel>> GetAllCompanyContractsOfCompany(int Id)
+        public async Task<List<CompanyContractModel>> GetAllCompanyContractsOfCompany(int companyId)
         {
-            var companyContracts = new List<CompanyContractModel>();
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        companyContracts = context.CompanyContracts.Include("HotelRoom").Include("HotelRoom.Room").Include("HotelRoom.FlightHotel").Include("HotelRoom.FlightHotel.Hotel").Include("HotelRoom.FlightHotel.Flight").Include("Company").Where(cc=>cc.CompanyId == Id).ToList();
-                    }
+                    var companyContracts = await context.CompanyContracts
+                        .Include(cc => cc.HotelRoom)
+                        .Include(cc => cc.HotelRoom.Room)
+                        .Include(cc => cc.HotelRoom.FlightHotel)
+                        .Include(cc => cc.HotelRoom.FlightHotel.Hotel)
+                        .Include(cc => cc.HotelRoom.FlightHotel.Flight)
+                        .Include(cc => cc.Company)
+                        .AsNoTracking()
+                        .Where(cc => cc.CompanyId == companyId)
+                        .ToListAsync()
+                        .ConfigureAwait(false);
 
-                    Error = false;
+                    return companyContracts;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return companyContracts;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
 
-        public async Task RemoveCompanyContract(CompanyContractModel companyContract)
+        public async Task RemoveCompanyContract(int contractId)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.CompanyContracts.FindAsync(contractId);
+                    if (entity != null)
                     {
-                        if (!context.CompanyContracts.Local.Contains(companyContract))
-                        {
-                            context.CompanyContracts.Attach(companyContract);
-                        }
-                        context.CompanyContracts.Remove(companyContract);
-                        context.SaveChanges();
+                        context.CompanyContracts.Remove(entity);
+                        await context.SaveChangesAsync();
                     }
-
-                    Error = false;
-
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
     }
 }

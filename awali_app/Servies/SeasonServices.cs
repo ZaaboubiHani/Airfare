@@ -2,6 +2,7 @@
 using Airfare.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,97 +14,108 @@ namespace Airfare.Servies
     {
         public async Task AddSeason(SeasonModel season)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Seasons.Add(season);
-                        context.SaveChanges();
-                    }
-                    
-                    Error = false;
+                    context.Seasons.Add(season);
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
+
+
 
         public async Task<List<SeasonModel>> GetAllSeasons()
         {
-            var seasons = new List<SeasonModel>();
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        seasons = context.Seasons.ToList();
-                    }
-                    
+                    var seasons = await context.Seasons.ToListAsync();
                     Error = false;
+                    return seasons;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return seasons;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                return new List<SeasonModel>();
+            }
         }
 
-        public async Task RemoveSeason(SeasonModel season)
+        public async Task<SeasonModel> GetFirstActiveSeason()
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {if (!context.Seasons.Local.Contains(season))
-                        {
-                            context.Seasons.Attach(season);
-                        }
+                    return await context.Seasons.FirstOrDefaultAsync(s => s.HasEnded == false);
+                }
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
+        }
+
+
+        public async Task RemoveSeason(int seasonId)
+        {
+            try
+            {
+                using (var context = new DataBaseContext())
+                {
+                    var season = await context.Seasons.FindAsync(seasonId);
+                    if (season != null)
+                    {
                         context.Seasons.Remove(season);
-                        context.SaveChanges();
+                        await context.SaveChangesAsync();
                     }
-                    
-                    Error = false;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
         public async Task UpdateSeason(SeasonModel season)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Seasons.FindAsync(season.Id);
+                    if (entity != null)
                     {
-                        var foundedSeason= context.Seasons.ToList().Find(s=>s.Id==season.Id);
-                        foundedSeason.StartDate = season.StartDate;
-                        foundedSeason.EndDate = season.EndDate;
-                        foundedSeason.Name = season.Name;
-                        context.SaveChanges();
+                        entity.StartDate = season.StartDate;
+                        entity.EndDate = season.EndDate;
+                        entity.Name = season.Name;
+                        entity.HasEnded = season.HasEnded;
+                        await context.SaveChangesAsync();
                     }
-                    
-                    Error = false;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
+
+        
     }
 }

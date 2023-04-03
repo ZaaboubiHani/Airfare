@@ -330,7 +330,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                     bool res = await Dialog.Show<YesNoDialog>().Initialize<YesNoDialogViewModel>(vm => vm.Description = "هل أنت متأكد أنك تريد حذف عقد هذا المتعامل؟").GetResultAsync<bool>();
                     if (res)
                     {
-                        await companyContractServices.RemoveCompanyContract(SelectedCompanyContract);
+                        await companyContractServices.RemoveCompanyContract(SelectedCompanyContract.Id);
                         CompanyContrastList = CollectionViewSource.GetDefaultView(await companyContractServices.GetAllCompanyContractsOfCompany(SelectedCompany.Id));
                         CompanyContrastList.Filter = CompanyContrastListFilter;
                         CompanyContrastList.Refresh();
@@ -431,7 +431,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                         SelectedCompanyPayment.Company = null;
                         SelectedCompanyPayment.Payments = null;
                         SelectedCompanyPayment.Flight = null;
-                        await companyPaymentServices.RemoveCompanyPayment(SelectedCompanyPayment);
+                        await companyPaymentServices.RemoveCompanyPayment(SelectedCompanyPayment.Id);
 
                         if (!companyPaymentServices.Error && !paymentServices.Error && !hostServices.Error)
                         {
@@ -641,7 +641,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                 {
                     SelectedCompany.Hosts = null;
                     SelectedCompanyHostsList = CollectionViewSource.GetDefaultView(null);
-                    await companyServices.RemoveCompany(SelectedCompany);
+                    await companyServices.RemoveCompany(SelectedCompany.Id);
                     if (!companyServices.Error)
                     {
                         InitData();

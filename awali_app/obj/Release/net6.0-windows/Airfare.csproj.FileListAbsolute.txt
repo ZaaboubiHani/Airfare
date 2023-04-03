@@ -171,3 +171,5 @@ C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\bin\Release\net6.0-windo
 C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\bin\Release\net6.0-windows\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\bin\Release\net6.0-windows\Newtonsoft.Json.dll
 C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\bin\Release\net6.0-windows\System.Linq.Async.dll
+C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\obj\Release\net6.0-windows\Views\Windows\LoadingWindow.g.cs
+C:\Users\Nilzak Indigo\source\repos\Awali-App\awali_app\obj\Release\net6.0-windows\Views\Windows\LoadingWindow.baml
