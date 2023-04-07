@@ -489,7 +489,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                             }
                             else
                             {
-                                await spotServices.RemoveSpot(spots[i]);
+                                await spotServices.RemoveSpot(spots[i].Id);
                             }
 
                         }
@@ -544,7 +544,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                         {
                             if (groups[i].Spots.Count < 2)
                             {
-                                await groupServices.RemoveGroup(groups[i]);
+                                await groupServices.RemoveGroup(groups[i].Id);
                             }
                         }
 
@@ -562,14 +562,14 @@ namespace Airfare.ViewModels.UserControlViewModels
                     for (int i = 0; i < GroupsListToRemove.Count; i++)
                     {
                         GroupsListToRemove[i].Spots = null;
-                        await groupServices.RemoveGroup(GroupsListToRemove[i]);
+                        await groupServices.RemoveGroup(GroupsListToRemove[i].Id);
                     }
                     for (int i = 0; i < SpotsListToRemove.Count; i++)
                     {
                         SpotsListToRemove[i].Group = null;
                         SpotsListToRemove[i].GroupId = null;
                         SpotsListToRemove[i].Hosts = null;
-                        await spotServices.RemoveSpot(SpotsListToRemove[i]);
+                        await spotServices.RemoveSpot(SpotsListToRemove[i].Id);
                     }
                     HostsListToRemove.Clear();
                     InitData();

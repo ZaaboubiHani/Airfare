@@ -214,7 +214,7 @@ namespace Airfare.ViewModels.DialogViewModels
                     flightHotelsControlList[i].Hotel = null;
                     if (!SelectedFlightHotelsList.Contains(flightHotelsControlList[i]))
                     {
-                        await flightHotelServices.RemoveFlightHotel(flightHotelsControlList[i]);
+                        await flightHotelServices.RemoveFlightHotel(flightHotelsControlList[i].Id);
                     }
                     else
                     {

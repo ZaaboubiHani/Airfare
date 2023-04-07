@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Airfare.Servies
 {
-    public class SeasonServices:BaseServices
+    public class SeasonServices : BaseServices
     {
         public async Task AddSeason(SeasonModel season)
         {
@@ -25,6 +25,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -45,6 +46,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
                 return new List<SeasonModel>();
@@ -62,6 +64,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
                 return null;
@@ -75,17 +78,21 @@ namespace Airfare.Servies
             {
                 using (var context = new DataBaseContext())
                 {
-                    var season = await context.Seasons.FindAsync(seasonId);
-                    if (season != null)
+                    var entity = await context.Seasons.FindAsync(seasonId);
+                    if (entity == null)
                     {
-                        context.Seasons.Remove(season);
-                        await context.SaveChangesAsync();
+                        ErrorMessage = "Season not found";
+                        Error = true;
+                        return;
                     }
+                    context.Seasons.Remove(entity);
+                    await context.SaveChangesAsync();
                 }
                 Error = false;
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -98,24 +105,30 @@ namespace Airfare.Servies
                 using (var context = new DataBaseContext())
                 {
                     var entity = await context.Seasons.FindAsync(season.Id);
-                    if (entity != null)
+                    if (entity == null)
                     {
-                        entity.StartDate = season.StartDate;
-                        entity.EndDate = season.EndDate;
-                        entity.Name = season.Name;
-                        entity.HasEnded = season.HasEnded;
-                        await context.SaveChangesAsync();
+                        ErrorMessage = "Season not found";
+                        Error = true;
+                        return;
                     }
+
+                    entity.StartDate = season.StartDate;
+                    entity.EndDate = season.EndDate;
+                    entity.Name = season.Name;
+                    entity.HasEnded = season.HasEnded;
+                    await context.SaveChangesAsync();
+
                 }
                 Error = false;
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
         }
 
-        
+
     }
 }

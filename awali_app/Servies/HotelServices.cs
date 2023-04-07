@@ -2,34 +2,34 @@
 using Airfare.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Airfare.Servies
 {
-    public class HotelServices:BaseServices
+    public class HotelServices : BaseServices
     {
         public async Task AddHotel(HotelModel hotel)
         {
-            await Task.Run(() =>
+
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Hotels.Add(hotel);
-                        context.SaveChanges();
-                    }
-                     
-                    Error = false;
+                    context.Hotels.Add(hotel);
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
         public async Task UpdateHotel(HotelModel hotel)
@@ -40,12 +40,19 @@ namespace Airfare.Servies
                 {
                     using (var context = new DataBaseContext())
                     {
-                        var foundedHotel = context.Hotels.ToList().Find(h=> h.Id == hotel.Id);
-                        foundedHotel.Distance = hotel.Distance;
-                        foundedHotel.Name = hotel.Name;
-                        foundedHotel.Address = hotel.Address;
-                        foundedHotel.RoomsNumber = hotel.RoomsNumber;
-                        foundedHotel.Rate = hotel.Rate;
+                        var entity = context.Hotels.Find(hotel.Id);
+                        if (entity == null)
+                        {
+                            Error = true;
+                            ErrorMessage = "Hotel not found";
+                            return;
+                        }
+
+                        entity.Distance = hotel.Distance;
+                        entity.Name = hotel.Name;
+                        entity.Address = hotel.Address;
+                        entity.RoomsNumber = hotel.RoomsNumber;
+                        entity.Rate = hotel.Rate;
                         context.SaveChanges();
                     }
 
@@ -53,86 +60,84 @@ namespace Airfare.Servies
                 }
                 catch (Exception e)
                 {
+                    LogService.LogError(e.Message, this);
                     Error = true;
                     ErrorMessage = e.Message;
                 }
             });
         }
 
-        public async Task<HotelModel> GetHotel(int id)
+
+        public async Task<HotelModel> GetHotel(int hotelId)
         {
-            var hotel = new HotelModel();
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        hotel = context.Hotels.Where(h => h.Id == id).FirstOrDefault();
-                    }
-                    
                     Error = false;
+                    return await context.Hotels.FindAsync(hotelId);
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return hotel;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
+
 
         public async Task<List<HotelModel>> GetAllHotels()
         {
-            var hotels = new List<HotelModel>();
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        hotels = context.Hotels.ToList();
-                    }
-                    
-                    Error = false;
+                    var hotels = await context.Hotels.ToListAsync().ConfigureAwait(false);
+                    return hotels;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return hotels;
+
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
 
-        public async Task RemoveHotel(HotelModel hotel)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    using (var context = new DataBaseContext())
-                    {
-                      
-                        context.FlightHotels.RemoveRange(context.FlightHotels.Where((fh) => fh.HotelId == hotel.Id).ToList());
-                        context.HotelsRooms.RemoveRange(context.HotelsRooms.Where((hr) => hr.FlightHotel.HotelId == hotel.Id).ToList());
-                        if (!context.Hotels.Local.Contains(hotel))
-                        {
-                            context.Hotels.Attach(hotel);
-                        }
-                        context.Hotels.Remove(hotel);
-                        context.SaveChanges();
-                    }
-                    
-                    Error = false;
 
-                }
-                catch (Exception e)
+        public async Task RemoveHotel(int hotelId)
+        {
+
+            try
+            {
+                using (var context = new DataBaseContext())
                 {
-                    Error = true;
-                    ErrorMessage = e.Message;
+
+                    var entity = await context.Hotels.FindAsync(hotelId);
+                    if (entity == null)
+                    {
+                        Error = true;
+                        ErrorMessage = "Hotel not found";
+                        return;
+                    }
+                    context.Hotels.Remove(entity);
+                    await context.SaveChangesAsync();
                 }
-            });
+
+                Error = false;
+
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
     }
 }

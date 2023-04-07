@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
 
 namespace Airfare.Models
@@ -44,6 +45,18 @@ namespace Airfare.Models
         {
             get => _payments;
             set => SetProperty(ref _payments, value);
+        }
+
+        public object Clone()
+        {
+            return new CompanyModel
+            {
+                Id = this.Id,
+                Name = this.Name,
+                Logo = this.Logo?.Clone() as byte[],
+                Hosts = this.Hosts,
+                Payments = this.Payments,
+            };
         }
 
         public override string ToString()
@@ -91,8 +104,7 @@ namespace Airfare.Models
 
         public CompanyModel()
         {
-            ClearErrors(nameof(Name));
-            AddError(nameof(Name), "لا يمكن أن يكون الاسم فارغًا");
+           
         }
     }
 }

@@ -313,8 +313,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 ExporContractLoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 ExporContractLoadingCircle = false;
                 Growl.Error("an error occurred while trying to remove company contract");
             }
@@ -338,8 +339,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                     HostsLoadingLine = false;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("an error occurred while trying to remove company contract");
             }
         }
@@ -388,8 +390,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                     AddingContractLoading = false;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("an error occurred while trying to add company contract");
             }
         }
@@ -466,7 +469,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                         CompanyContrastList = CollectionViewSource.GetDefaultView(await companyContractServices.GetAllCompanyContractsOfCompany(SelectedCompany.Id));
                         CompanyContrastList.Filter = CompanyContrastListFilter;
                         CompanyContrastList.Refresh();
-                        SelectedCompany.Hosts = await companyServices.GetCompanyHostsList(SelectedCompany.Id);
+                        SelectedCompany = await companyServices.GetCompanyProperties(SelectedCompany.Id);
                         SelectedCompanyHostsList = CollectionViewSource.GetDefaultView(SelectedCompany.Hosts.OrderBy(h => h.Id));
                         SelectedCompanyHostsList.Filter = HostsListFilter;
                         SelectedCompanyHostsList.Refresh();
@@ -479,9 +482,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                LogService.LogError(e.Message, this);
                 Growl.Error("an error occurred while trying to remove the selected company payment");
             }
         }
@@ -560,7 +563,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                     CompanyContrastList = CollectionViewSource.GetDefaultView(await companyContractServices.GetAllCompanyContractsOfCompany(SelectedCompany.Id));
                     CompanyContrastList.Filter = CompanyContrastListFilter;
                     CompanyContrastList.Refresh();
-                    SelectedCompany.Hosts = await companyServices.GetCompanyHostsList(SelectedCompany.Id);
+                    SelectedCompany = await companyServices.GetCompanyProperties(SelectedCompany.Id);
                     SelectedCompanyHostsList = CollectionViewSource.GetDefaultView(SelectedCompany.Hosts.OrderBy(h => h.Id));
                     SelectedCompanyHostsList.Filter = HostsListFilter;
                     SelectedCompanyHostsList.Refresh();
@@ -579,9 +582,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                     Growl.Warning("عليك أن تختار رحلة");
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                LogService.LogError(e.Message, this);
                 Growl.Error("an error occurred while trying to add company payment");
             }
         }
@@ -593,9 +596,10 @@ namespace Airfare.ViewModels.UserControlViewModels
                 HostsLoadingLine = true;
                 if (SelectedCompany != null)
                 {
+                    //TODO: change the condition so it also checks if it got any payments
                     if (SelectedCompany.Hosts is null || SelectedCompany.Hosts.Count == 0)
                     {
-                        SelectedCompany.Hosts = await companyServices.GetCompanyHostsList(SelectedCompany.Id);
+                        SelectedCompany = await companyServices.GetCompanyProperties(SelectedCompany.Id);
                         SelectedCompanyHostsList = CollectionViewSource.GetDefaultView(SelectedCompany.Hosts.OrderBy(h => h.Id));
                     }
                     else
@@ -622,9 +626,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 HostsLoadingLine = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                LogService.LogError(e.Message, this);
                 Growl.Error("an error occurred while trying to get the selected company hosts");
             }
         }
@@ -654,8 +658,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 CompaniesLoadingLine = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while removing company");
             }
             
@@ -682,8 +687,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 CompaniesLoadingLine = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while updating company");
             }
         }
@@ -706,9 +712,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 LoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while adding company");
             }
         }
@@ -734,8 +740,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 
                 CompaniesLoadingLine = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while InitData in company");
             }
         }
@@ -766,7 +773,7 @@ namespace Airfare.ViewModels.UserControlViewModels
 
         public void Dispose()
         {
-            GC.Collect();
+            
         }
         #endregion
     }

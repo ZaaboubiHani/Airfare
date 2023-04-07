@@ -1,8 +1,8 @@
 ﻿using Airfare.DataContext;
 using Airfare.Models;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,159 +11,179 @@ namespace Airfare.Servies
 {
     public class HostServices:BaseServices
     {
+        public Exception HotelServiceException { get; set; }
+
         public async Task AddHost(HostModel host)
         {
-            await Task.Run(() =>
+           
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Hosts.Add(host);
-                        context.SaveChanges();
-                    }
-                    Error = false;
+                    context.Hosts.Add(host);
+                    await  context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
         public async Task AddAllHost(List<HostModel> hosts)
         {
-            await Task.Run(() =>
+           
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Hosts.AddRange(hosts);
-                        context.SaveChanges();
-                    }
-                    Error = false;
+                    context.Hosts.AddRange(hosts);
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
         public async Task UpdateHost(HostModel host)
         {
-            await Task.Run(() =>
+           
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Hosts.FindAsync(host.Id);
+                    if (entity == null)
                     {
-                        var foundedHost = context.Hosts.ToList().Find(h => h.Id == host.Id);
-                        foundedHost.IsPaid = host.IsPaid;
-                        foundedHost.PaidPrice = host.PaidPrice;
-                        foundedHost.RemainingPrice = host.RemainingPrice;
-                        foundedHost.FullPrice = host.FullPrice;
-                        foundedHost.ClientId = host.ClientId;
-                        foundedHost.CompanyId = host.CompanyId;
-                        foundedHost.Discount = host.Discount;
-                        foundedHost.HotelRoomId = host.HotelRoomId;
-                        foundedHost.SpotId = host.SpotId;
-                        context.SaveChanges();
+                        Error = true;
+                        ErrorMessage = "Host not found";
+                        return;
                     }
-                    Error = false;
+                    entity.IsPaid = host.IsPaid;
+                    entity.PaidPrice = host.PaidPrice;
+                    entity.RemainingPrice = host.RemainingPrice;
+                    entity.FullPrice = host.FullPrice;
+                    entity.ClientId = host.ClientId;
+                    entity.CompanyId = host.CompanyId;
+                    entity.Discount = host.Discount;
+                    entity.HotelRoomId = host.HotelRoomId;
+                    entity.SpotId = host.SpotId;
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
         public async Task<List<HostModel>> GetAllHosts()
         {
-            List<HostModel> hosts = new();
-           
-            await Task.Run( () =>
+            
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        hosts = context.Hosts.Include("Spot.Group").Include("Spot.Group.Spots").Include("Spot").Include("Client").Include("HotelRoom").Include("Client.Phones").Include("HotelRoom.Room").Include("HotelRoom.FlightHotel").Include("HotelRoom.FlightHotel.Hotel").Include("HotelRoom.FlightHotel.Flight").Include("Payments").Include("Company").Where(h=>h.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id).ToList();
-                    }  
+                    var hosts = await context.Hosts
+                        .Include("Spot.Group")
+                        .Include("Spot.Group.Spots")
+                        .Include("Spot")
+                        .Include("Client")
+                        .Include("HotelRoom")
+                        .Include("Client.Phones")
+                        .Include("HotelRoom.Room")
+                        .Include("HotelRoom.FlightHotel")
+                        .Include("HotelRoom.FlightHotel.Hotel")
+                        .Include("HotelRoom.FlightHotel.Flight")
+                        .Include("Payments")
+                        .Include("Company")
+                        .Where(h => h.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id)
+                        .ToListAsync().ConfigureAwait(false);
                     Error = false;
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return hosts;
+                    return hosts;
+                }  
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
 
         public async Task<List<HostModel>> GetAllHostsOfFlight(int flightId)
         {
-            List<HostModel> hosts = new();
 
-            await Task.Run(() =>
+           
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        hosts = context.Hosts.Include("Client").Include("HotelRoom").Include("Client.Phones").Include("HotelRoom.Room").Include("HotelRoom.FlightHotel").Include("HotelRoom.FlightHotel.Hotel").Include("HotelRoom.FlightHotel.Flight").Include("Payments").Include("Company").Where(h=>(h.HotelRoom.FlightHotel.FlightId == flightId && h.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id)).ToList();
-                    }
-                    Error = false;
+                    var hosts = await context.Hosts
+                    .Include("Client")
+                    .Include("HotelRoom")
+                    .Include("Client.Phones")
+                    .Include("HotelRoom.Room")
+                    .Include("HotelRoom.FlightHotel")
+                    .Include("HotelRoom.FlightHotel.Hotel")
+                    .Include("HotelRoom.FlightHotel.Flight")
+                    .Include("Payments")
+                    .Include("Company")
+                    .Where(h=>(h.HotelRoom.FlightHotel.FlightId == flightId && h.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id))
+                    .ToListAsync().ConfigureAwait(false);
+                    return hosts;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return hosts;
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
+                
+            
         }
 
-        public async Task RemoveHost(HostModel host)
+        public async Task RemoveHost(int hostId)
         {
-            await Task.Run(() =>
+          
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Hosts.FindAsync(hostId);
+                    if (entity == null)
                     {
-                        if (!context.Hosts.Local.Contains(host))
-                        {
-                            context.Hosts.Attach(host);
-                        }
-                       
-                        context.Phones.RemoveRange(host.Client.Phones);
-                        
-                        if (!context.Clients.Local.Contains(host.Client))
-                        {
-                            context.Clients.Attach(host.Client);
-                        }
-                        context.Clients.Remove(host.Client);
-                       
-                        context.Payments.RemoveRange(host.Payments);
-                        
-                        context.Hosts.Remove(host);
-                        context.SaveChanges();
+                        Error = true;
+                        ErrorMessage = "Host not found";
+                        return;
                     }
-                    Error = false;
+                    context.Hosts.Remove(entity);
+                    await context.SaveChangesAsync();
+                }
+                Error = false;
 
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
 

@@ -1,13 +1,15 @@
 ﻿
 using Airfare.ViewModels.UserControlViewModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Airfare.Models
 {
     [Table("Hosts")]
-    public class HostModel : BaseViewModel
+    public class HostModel : BaseViewModel,ICloneable
     {
         [Key]
         public int Id { get; set; }
@@ -120,6 +122,29 @@ namespace Airfare.Models
                 _Company = value;
                 OnPropertyChanged(nameof(Company));
             }
+        }
+
+
+        public object Clone()
+        {
+            return new HostModel
+            {
+                Id = this.Id,
+                FullPrice = this.FullPrice,
+                PaidPrice = this.PaidPrice,
+                RemainingPrice = this.RemainingPrice,
+                Discount = this.Discount,
+                IsPaid = this.IsPaid,
+                ClientId = this.ClientId,
+                Client = (ClientModel)this.Client?.Clone(),
+                HotelRoomId = this.HotelRoomId,
+                HotelRoom = (HotelRoomModel)this.HotelRoom?.Clone(),
+                SpotId = this.SpotId,
+                Spot = (SpotModel)this.Spot?.Clone(),
+                Payments = new List<PaymentModel>(this.Payments.Select(p => (PaymentModel)p.Clone())),
+                CompanyId = this.CompanyId,
+                Company = (CompanyModel?)this.Company?.Clone()
+            };
         }
 
     }

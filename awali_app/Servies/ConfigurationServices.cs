@@ -28,8 +28,10 @@ namespace Airfare.Servies
                     config.Save(ConfigurationSaveMode.Modified);
                     ConfigurationManager.RefreshSection(config.AppSettings.SectionInformation.Name);
                 }
-                catch (ConfigurationErrorsException)
+                catch (ConfigurationErrorsException e)
                 {
+
+                    LogService.LogError(e.Message, this);
                     Console.WriteLine("Error writing app settings");
                 }
             });
@@ -50,8 +52,10 @@ namespace Airfare.Servies
                     }
                     Console.WriteLine(result);
                 }
-                catch (ConfigurationErrorsException)
+                catch (ConfigurationErrorsException e)
                 {
+
+                    LogService.LogError(e.Message, this);
                     Console.WriteLine("Error reading app settings");
                 }
             });

@@ -12,61 +12,89 @@ namespace Airfare.Servies
 {
     public class ControlDeviceService
     {
-        public async Task UploadDevice(ControlDeviceModel controlDevice)
+        public async Task<string> UploadDevice(ControlDeviceModel controlDevice)
         {
-            await Task.Run(async () =>
+            try
             {
-                try
+                FireBaseDataContext firebase = new(); // get the singleton instance or use DI
+                CollectionReference devicesCollection = firebase.Database.Collection("devices");
+                Dictionary<string, object> deviceDictionary = new()
                 {
-                    FireBaseDataContext firebase = new();
-                    CollectionReference devicesCollection = firebase.Database.Collection("devices");
-                    Dictionary<string, object> deviceDictionary = new()
-                    {
-                        { "deviceId",controlDevice.DeviceId},
-                        { "expirationDate",controlDevice.ExpirationDate},
-                        { "machineName",controlDevice.MachineName},
-                    };
-                    var questionDocument = await devicesCollection.AddAsync(deviceDictionary);
-                    
-                }
-                catch (Exception e)
-                {
-                    Growl.Error(e.Message);
-                }
-            });
+                    { "deviceId",controlDevice.DeviceId},
+                    { "expirationDate",controlDevice.ExpirationDate},
+                    { "machineName",controlDevice.MachineName},
+                };
+                var docRef = await devicesCollection.AddAsync(deviceDictionary);
+                return docRef.Id;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Growl.Error(e.Message);
+                return null;
+            }
         }
 
         public async Task<List<ControlDeviceModel>> GetAllDevices()
         {
-            List<ControlDeviceModel> devices = new();
-            await Task.Run(async () =>
+            try
             {
-                try
+                FireBaseDataContext firebase = new(); // get the singleton instance or use DI
+                CollectionReference devicesCollection = firebase.Database.Collection("devices");
+                QuerySnapshot devicesSnapshot = await devicesCollection.GetSnapshotAsync();
+
+                List<ControlDeviceModel> devices = devicesSnapshot.Documents.Select(deviceDocument => new ControlDeviceModel
                 {
-                    FireBaseDataContext firebase = new();
+                    Id = deviceDocument.Id,
+                    DeviceId = deviceDocument.GetValue<string>("deviceId"),
+                    MachineName = deviceDocument.GetValue<string>("machineName"),
+                    ExpirationDate = deviceDocument.GetValue<DateTime>("expirationDate")
+                }).ToList();
 
-                    CollectionReference devicesCollection = firebase.Database.Collection("devices");
-
-                    QuerySnapshot devicesSnapshot = await devicesCollection.GetSnapshotAsync();
-
-                    foreach (DocumentSnapshot deviceDocument in devicesSnapshot.Documents)
-                    {
-                        devices.Add(new()
-                        {
-                            Id = deviceDocument.Id,
-                            DeviceId = deviceDocument.GetValue<string>("deviceId"),
-                            MachineName = deviceDocument.GetValue<string>("machineName"),
-                            ExpirationDate = deviceDocument.GetValue<DateTime>("expirationDate")
-                        });
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Growl.Error("انقطع الاتصال بالإنترنت");
-                }
-            });
-            return devices;
+                return devices;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Growl.Error("انقطع الاتصال بالإنترنت");
+                return new List<ControlDeviceModel>();
+            }
         }
+
+        public async Task<ControlDeviceModel> GetDeviceById(string deviceId)
+        {
+            try
+            {
+                FireBaseDataContext firebase = new(); // get the singleton instance or use DI
+                CollectionReference devicesCollection = firebase.Database.Collection("devices");
+                DocumentSnapshot deviceDocument = await devicesCollection.Document(deviceId).GetSnapshotAsync();
+
+                if (deviceDocument.Exists)
+                {
+                    ControlDeviceModel device = new ControlDeviceModel
+                    {
+                        Id = deviceDocument.Id,
+                        DeviceId = deviceDocument.GetValue<string>("deviceId"),
+                        MachineName = deviceDocument.GetValue<string>("machineName"),
+                        ExpirationDate = deviceDocument.GetValue<DateTime>("expirationDate")
+                    };
+                    return device;
+                }
+                else
+                {
+                    // Device not found
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Growl.Error("انقطع الاتصال بالإنترنت");
+                return null;
+            }
+        }
+
+
+
     }
 }

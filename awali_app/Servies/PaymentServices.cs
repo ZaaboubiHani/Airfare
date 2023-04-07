@@ -2,6 +2,7 @@
 using Airfare.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,127 +11,130 @@ namespace Airfare.Servies
 {
     public class PaymentServices : BaseServices
     {
-        
+
         public async Task AddPayment(PaymentModel payment)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Payments.Add(payment);
-                        context.SaveChanges();
-                    }
-                    
-                    Error = false;
+                    context.Payments.Add(payment);
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
 
         public async Task AddPaymentIfNotExist(PaymentModel payment)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var existingPayment = await context.Payments.FindAsync(payment.Id);
+                    if (existingPayment == null)
                     {
-
-                        var existingPayment = context.Payments.Where(p => p.Id == payment.Id).ToList().FirstOrDefault();
-                        if (existingPayment == null)
-                            context.Payments.Add(payment);
-                        context.SaveChanges();
+                        context.Payments.Add(payment);
+                        await context.SaveChangesAsync();
                     }
-
-                    Error = false;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
 
         public async Task<List<PaymentModel>> GetPaymentsOfHost(int hostId)
         {
-            var payments = new List<PaymentModel>();
-            await Task.Run(() =>
+
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        payments = context.Payments.Where(p => p.HostId == hostId && p.Host.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id).ToList();
-                    }
-                    
+                    var payments = await context.Payments
+                        .Where(p => p.HostId == hostId && p.Host.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id)
+                        .ToListAsync().ConfigureAwait(false);
                     Error = false;
+                    return payments;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return payments;
+
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+                return null;
+            }
         }
 
         public async Task RemovePayment(PaymentModel payment)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Payments.FindAsync(payment.Id);
+                    if (entity == null)
                     {
-                        if (!context.Payments.Local.Contains(payment))
-                        {
-                            context.Payments.Attach(payment);
-                        }
-                        context.Payments.Remove(payment);
-                        context.SaveChanges();
+                        Error = true;
+                        ErrorMessage = "Payment not found";
+                        return;
                     }
-                    
-                    Error = false;
+                    context.Payments.Remove(entity);
+                    await context.SaveChangesAsync();
+                }
+                Error = false;
 
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
 
         public async Task<List<PaymentModel>> GetAllPaymentsOfSeason(int seasonId)
         {
-            var payments = new List<PaymentModel>();
-            await Task.Run(() =>
+
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        payments = context.Payments.Include("Host").Include("Host.HotelRoom").Include("Host.HotelRoom.FlightHotel").Include("Host.HotelRoom.FlightHotel.Flight").Include("Host.HotelRoom.FlightHotel.Hotel").Where(p => p.Host.HotelRoom.FlightHotel.Flight.SeasonId == seasonId).ToList();
-                    }
-
+                    var payments = await context.Payments
+                        .Include("Host")
+                        .Include("Host.HotelRoom")
+                        .Include("Host.HotelRoom.FlightHotel")
+                        .Include("Host.HotelRoom.FlightHotel.Flight")
+                        .Include("Host.HotelRoom.FlightHotel.Hotel")
+                        .Where(p => p.Host.HotelRoom.FlightHotel.Flight.SeasonId == seasonId)
+                        .ToListAsync().ConfigureAwait(false);
                     Error = false;
+                    return payments;
+                }
 
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return payments;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+                return null;
+            }
         }
+
+
 
     }
 }

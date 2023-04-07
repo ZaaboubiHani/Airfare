@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Airfare.Models
 {
     [Table("Hotels")]
-    public class HotelModel
+    public class HotelModel:ICloneable
     {
         [Key]
         public int Id { get; set; }
@@ -24,9 +24,17 @@ namespace Airfare.Models
             return Name;
         }
 
-        public HotelModel Copy()
+        public object Clone()
         {
-            return new HotelModel() { Address = Address, Distance = Distance, Rate = Rate, Id = Id, Name = Name, RoomsNumber = RoomsNumber};
+            return new HotelModel
+            {
+                Id = this.Id,
+                Name = this.Name,
+                RoomsNumber = this.RoomsNumber,
+                Address = this.Address,
+                Distance = this.Distance,
+                Rate = this.Rate
+            };
         }
 
         public static bool operator == (HotelModel hotel1, HotelModel hotel2)

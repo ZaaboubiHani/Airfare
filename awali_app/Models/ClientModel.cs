@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Airfare.Models
 {
     [Table("Clients")]
-    public class ClientModel : BaseModel
+    public class ClientModel : BaseModel, ICloneable
     {
         [Key]
         private int _id;
@@ -55,6 +55,26 @@ namespace Airfare.Models
         public override string ToString()
         {
             return $"{FirstName} {LastName}";
+        }
+
+        public object Clone()
+        {
+            return new ClientModel
+            {
+                Id = this.Id,
+                FirstName = this.FirstName,
+                LastName = this.LastName,
+                BirthDate = this.BirthDate,
+                PassportNumber = this.PassportNumber,
+                HealthStatus = this.HealthStatus,
+                Gender = this.Gender,
+                IsMinor = this.IsMinor,
+                Feed = this.Feed,
+                IsGuide = this.IsGuide,
+                Description = this.Description,
+                Color = this.Color,
+                Phones = new List<PhoneModel>(this.Phones.Select(p => p.Clone() as PhoneModel))
+            };
         }
     }
 }

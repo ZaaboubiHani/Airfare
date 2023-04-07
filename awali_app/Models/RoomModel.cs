@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Airfare.Models
 {
     [Table("Rooms")]
-    public class RoomModel:BaseViewModel
+    public class RoomModel:BaseViewModel,ICloneable
     {
         [Key]
         private int _Id;
@@ -29,7 +29,16 @@ namespace Airfare.Models
             return Type;
         }
 
-       
+        public object Clone()
+        {
+            return new RoomModel
+            {
+                Id = this.Id,
+                Type = this.Type,
+                Capacity = this.Capacity,
+                Color = this.Color
+            };
+        }
 
     }
 }

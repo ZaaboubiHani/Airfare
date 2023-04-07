@@ -42,7 +42,7 @@ namespace Airfare.Views
                     DC.HotelsList.Remove(hotel);
                     var flighthotel = new FlightHotelModel { Hotel = hotel, HotelId = hotel.Id };
                     DC.SelectedFlightHotelsList.Add(flighthotel);
-                    for (int i = 0; i < DC.Rooms.Length; i++)
+                    for (int i = 0; i < DC.Rooms.Count(); i++)
                     {
                         DC.HotelsRooms.Add(new() { Room = DC.Rooms[i], RoomId = DC.Rooms[i].Id, Price = 0.0f, FlightHotel = flighthotel });
                     }
@@ -178,7 +178,7 @@ namespace Airfare.Views
             {
                 if (e.Key == Key.A && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) && ((FlightViewModel)DataContext).SelectedFlight != null)
                 {
-                    ((FlightViewModel)DataContext).ShowClientDialogCommand.Execute(null);
+                    ((FlightViewModel)DataContext).AddClientCommand.Execute(null);
                 }
                 else if (e.Key == Key.M && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) && ((FlightViewModel)DataContext).SelectedFlight != null)
                 {

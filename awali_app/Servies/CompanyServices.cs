@@ -30,13 +30,14 @@ namespace Airfare.Servies
                 else
                 {
                     Error = true;
-                    var g = (IEnumerable<string>)company.GetErrors(nameof(company.Name));
-                    ErrorMessage = g.FirstOrDefault();
+                    var errors = company.GetAllErrors();
+                    ErrorMessage = errors.FirstOrDefault() ?? "Unknown error";
                     return;
                 }
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -48,16 +49,22 @@ namespace Airfare.Servies
                 using (var context = new DataBaseContext())
                 {
                     var entity = await context.Companies.FindAsync(companyId);
-                    if (entity != null)
+                    if (entity == null)
                     {
-                        context.Companies.Remove(entity);
-                        await context.SaveChangesAsync();
+                        Error = true;
+                        ErrorMessage = "Client not found";
+                        return;
                     }
+                   
+                    context.Companies.Remove(entity);
+                    await context.SaveChangesAsync();
+                    
                 }
                 Error = false;
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -70,64 +77,88 @@ namespace Airfare.Servies
             {
                 using (var context = new DataBaseContext())
                 {
-                    var foundedCompany = context.Companies.ToList().Find(c => c.Id == company.Id);
-                    foundedCompany.Name = company.Name;
-                    foundedCompany.Logo = company.Logo;
+                    var entity = await context.Companies.FindAsync(company.Id);
+                    if (entity == null)
+                    {
+                        Error = true;
+                        ErrorMessage = "Client not found";
+                        return;
+                    }
+                    // update properties
+                    entity.Name = company.Name;
+                    entity.Logo = company.Logo;
                     await context.SaveChangesAsync();
                 }
                 Error = false;
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
         }
 
-        public async Task<CompanyModel> GetCompany(int id)
+        public async Task<CompanyModel> GetCompany(int companyId)
         {
-            var company = new CompanyModel();
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        company = context.Companies.Where(c => c.Id == id).ToList().FirstOrDefault();
-                    }
+                    var company = await context.Companies.FindAsync(companyId);
                     Error = false;
+                    return company;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return company;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
+            return null;
         }
 
 
 
-        public async Task<List<HostModel>> GetCompanyHostsList(int id)
+        public async Task<CompanyModel> GetCompanyProperties(int companyId)
         {
-            var hosts = new List<HostModel>();
-            await Task.Run(() =>
+           
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        hosts = context.Companies.Include("Hosts").Include("Hosts.Client").Include("Hosts.HotelRoom.FlightHotel").Include("Hosts.HotelRoom.FlightHotel.Flight").Include("Hosts.HotelRoom.FlightHotel.Hotel").Include("Hosts.HotelRoom.Room").Include("Hosts.HotelRoom").Where(c => c.Id == id).ToList().FirstOrDefault().Hosts.Where(h => h.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id).ToList();
-                    }
+                    var hosts = await context.Companies
+                        .Where(c => c.Id == companyId)
+                        .SelectMany(c => c.Hosts)
+                        .Include(h => h.Client)
+                        .Include(h => h.HotelRoom.Room)
+                        .Include(h => h.HotelRoom.FlightHotel.Flight)
+                        .Include(h => h.HotelRoom.FlightHotel.Hotel)
+                        .Where(h => h.HotelRoom.FlightHotel.Flight.SeasonId == Configuration.CurrentSeason.Id)
+                        .ToListAsync();
+                    var payments = await context.Companies
+                        .Where(c => c.Id == companyId)
+                        .SelectMany(c => c.Payments)
+                        .Include(p => p.Company)
+                        .Include(p => p.Payments)
+                        .Where(p => p.Flight.SeasonId == Configuration.CurrentSeason.Id)
+                        .ToListAsync();
+                    var company = await context.Companies.FindAsync(companyId);
+                    company.Hosts = hosts;
+                    company.Payments = payments;
                     Error = false;
+                    return company;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return hosts;
+                
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message,this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
+            return null;
         }
 
 
@@ -135,35 +166,22 @@ namespace Airfare.Servies
         {
             try
             {
-                return await Task.Run(() =>
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        var companies =  context.Companies
-         .Include(c => c.Payments.Select(p => p.Flight))
-         .Include(c => c.Payments.Select(p => p.Company))
-         .Include(c => c.Payments.Select(p => p.Payments))
-         .ToList();
-                        foreach (var company in companies)
-                        {
-                            company.Payments = company.Payments.Where(p => p.Flight.SeasonId == Configuration.CurrentSeason.Id).ToList();
-                        }
-                        return companies;
-                    }
-                }).ConfigureAwait(false);
+                    var companies = await context.Companies
+                    .ToListAsync()
+                    .ConfigureAwait(false);
 
-               
+                    return companies;
+                }
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
-                return null;
             }
+            return null;
         }
-
-
-
-
     }
 }

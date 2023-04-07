@@ -343,7 +343,7 @@
                         </Grid>
                     </hc:TransitioningContentControl>
                     <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
-                        <ListBox IsEnabled="{c:Binding !ShowingClients}" ItemContainerStyle="{StaticResource VerticalListBoxItemStyle}" BorderBrush="Black" FontSize="20" Height="42" ItemsSource="{Binding SelectedFlights}" SelectedItem="{Binding SelectedFlight}" Margin="10,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox IsEnabled="{c:Binding !ShowingClients}" ItemContainerStyle="{StaticResource VerticalListBoxItemStyle}" BorderBrush="Black" FontSize="20" Height="42" ItemsSource="{Binding FlightsList}" SelectedItem="{Binding SelectedFlight}" Margin="10,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel IsItemsHost="True" />
@@ -386,7 +386,7 @@
 
                                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Visibility="{Binding FlightFuntionsButonsVisibility,Converter={StaticResource BoolToCollaps}}">
                                 <hc:LoadingCircle Visibility="{Binding AddClientLoadingCircle,Converter={StaticResource BoolToCollaps}}" Height="30" Margin="0"/>
-                                <Button Cursor="Hand" Foreground="White" Background="Blue" Margin="10,5" Height="40" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource addClient}" hc:IconElement.Height="17" Command="{Binding ShowClientDialogCommand}">
+                                <Button Cursor="Hand" Foreground="White" Background="Blue" Margin="10,5" Height="40" hc:BorderElement.CornerRadius="15" hc:IconElement.Geometry="{StaticResource addClient}" hc:IconElement.Height="17" Command="{Binding AddClientCommand}">
                                     <hc:Poptip.Instance>
                                         <hc:Poptip Content="أضف معتمر"  Delay="0" Foreground="Black" Opacity="1" FontSize="12" PlacementType="Left" HorizontalOffset="-90"/>
                                     </hc:Poptip.Instance>
@@ -430,7 +430,7 @@
                 </ScrollViewer>
                 </Border>
                 <!-- flight's clients datagrid -->
-                <DataGrid IsEnabled="{c:Binding !ShowingClients}" Background="#eef" hc:DataGridAttach.ShowRowNumber="True" RowHeaderWidth="40" ScrollViewer.CanContentScroll="False" FontSize="15" Grid.ColumnSpan="2" Grid.Row="1" RowHeight="45" HeadersVisibility="All" IsReadOnly="True" AlternationCount="{Binding Items.Count, RelativeSource={RelativeSource Self}}" PreviewKeyDown="clientsDataGrid_PreviewKeyDown" x:Name="clientsDataGrid" DisplayMemberPath="true" SelectionMode="Single" AutoGenerateColumns="False" ItemsSource="{Binding SelectedHostsList}" SelectedItem="{Binding SelectedHost}">
+                <DataGrid IsEnabled="{c:Binding !ShowingClients}" Background="#eef" hc:DataGridAttach.ShowRowNumber="True" RowHeaderWidth="40" ScrollViewer.CanContentScroll="False" FontSize="15" Grid.ColumnSpan="2" Grid.Row="1" RowHeight="45" HeadersVisibility="All" IsReadOnly="True" AlternationCount="{Binding Items.Count, RelativeSource={RelativeSource Self}}" PreviewKeyDown="clientsDataGrid_PreviewKeyDown" x:Name="clientsDataGrid" DisplayMemberPath="true" SelectionMode="Single" AutoGenerateColumns="False" ItemsSource="{Binding HostsList}" SelectedItem="{Binding SelectedHost}">
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="Background" Value="LightGray"/>
@@ -683,7 +683,6 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <hc:LoadingLine Grid.ColumnSpan="2" Grid.Row="1" Visibility="{Binding FlightClientsLoadingLine,Converter={StaticResource BoolToCollaps}}" Margin="0,16"/>
                 <Border Visibility="{Binding ExporContractLoadingCircle,Converter={StaticResource BoolToCollaps}}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{DynamicResource PrimaryBrush}" CornerRadius="10">
                     <hc:LoadingCircle Style="{StaticResource LoadingCircleLight}" Margin="10"/>
                 </Border>

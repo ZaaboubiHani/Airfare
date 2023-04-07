@@ -35,6 +35,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -49,6 +50,12 @@ namespace Airfare.Servies
                 using (var context = new DataBaseContext())
                 {
                     var entity = await context.CompanyContracts.FindAsync(companyContract.Id);
+                    if (entity == null)
+                    {
+                        Error = true;
+                        ErrorMessage = "Company Contract not found";
+                        return;
+                    }
                     entity.Price = companyContract.Price;
                     entity.PaidNumber = companyContract.PaidNumber;
                     entity.RoomsNumber = companyContract.RoomsNumber;
@@ -56,11 +63,12 @@ namespace Airfare.Servies
                     entity.HotelRoomId = companyContract.HotelRoomId;
                     await context.SaveChangesAsync();
                 }
-
                 Error = false;
+
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -83,16 +91,17 @@ namespace Airfare.Servies
                         .Where(cc => cc.CompanyId == companyId)
                         .ToListAsync()
                         .ConfigureAwait(false);
-
+                    Error = false;
                     return companyContracts;
                 }
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
-                return null;
             }
+            return null;
         }
 
         public async Task RemoveCompanyContract(int contractId)
@@ -102,16 +111,22 @@ namespace Airfare.Servies
                 using (var context = new DataBaseContext())
                 {
                     var entity = await context.CompanyContracts.FindAsync(contractId);
-                    if (entity != null)
+                    if (entity == null)
                     {
-                        context.CompanyContracts.Remove(entity);
-                        await context.SaveChangesAsync();
+                        Error = true;
+                        ErrorMessage = "Company Contract not found";
+                        return;
                     }
+                   
+                    context.CompanyContracts.Remove(entity);
+                    await context.SaveChangesAsync();
+                    Error = false;
+                  
                 }
-                Error = false;
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
