@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Airfare.Models
 {
     [Table("Payments")]
-    public class PaymentModel
+    public class PaymentModel:ICloneable
     {
         [Key]
         public int Id { get; set; }
@@ -20,5 +20,20 @@ namespace Airfare.Models
         public int? CompanyPaymentId { get; set; }
         public int HostId { get; set; }
         public HostModel Host { get; set; }
+
+        public object Clone()
+        {
+            return new PaymentModel
+            {
+                Id = this.Id,
+                Amount = this.Amount,
+                Date = this.Date,
+                PaidByCompany = this.PaidByCompany,
+                CompanyPayment = this.CompanyPayment?.Clone() as CompanyPaymentModel,
+                CompanyPaymentId = this.CompanyPaymentId,
+                HostId = this.HostId,
+                Host = this.Host?.Clone() as HostModel
+            };
+        }
     }
 }

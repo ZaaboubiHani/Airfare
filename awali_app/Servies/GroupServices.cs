@@ -12,74 +12,54 @@ namespace Airfare.Servies
     {
         public async Task AddGroup(GroupModel group)
         {
-            await Task.Run(() =>
+            
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Groups.Add(group);
-                        context.SaveChanges();
-                    }
+                    context.Groups.Add(group);
+                    await context.SaveChangesAsync();
+                }
 
-                    Error = false;
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
-        public async Task RemoveGroup(GroupModel group)
+        public async Task RemoveGroup(int groupId)
         {
-            await Task.Run(() =>
+           
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Groups.FindAsync(groupId);
+                    if (entity == null)
                     {
-                        if (!context.Groups.Local.Contains(group))
-                        {
-                            context.Groups.Attach(group);
-                        }
-                        context.Groups.Remove(group);
-                        context.SaveChanges();
+                        Error = true;
+                        ErrorMessage = "Group not found";
+                        return;
                     }
+                    context.Groups.Remove(entity);
+                    await context.SaveChangesAsync();
+                }
 
-                    Error = false;
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
+            
         }
 
-        public async Task UpdateGroup(GroupModel group)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    using (var context = new DataBaseContext())
-                    {
-                        var foundedGroup = context.Groups.ToList().Find(g => g.Id == group.Id);
-                        foundedGroup.Color = group.Color;
-
-                        context.SaveChanges();
-                    }
-
-                    Error = false;
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-        }
+       
     }
 }

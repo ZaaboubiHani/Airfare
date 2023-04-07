@@ -1,158 +1,164 @@
 ﻿using Airfare.DataContext;
 using Airfare.Models;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Airfare.Servies
 {
-    public class FlightHotelServices:BaseServices
+    public class FlightHotelServices : BaseServices
     {
         public async Task AddFlightHotel(FlightHotelModel flightHotel)
         {
-            
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
+                    context.FlightHotels.Add(flightHotel);
+                    await context.SaveChangesAsync();
+                }
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
 
-                        context.FlightHotels.Add(flightHotel);
-                        context.SaveChanges();
-                    }
-                    Error = false;
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-           
         }
 
         public async Task UpdateFlightHotel(FlightHotelModel flightHotel)
         {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    using (var context = new DataBaseContext())
-                    {
 
-                        var foundedFlightHotel = context.FlightHotels.ToList().Find(fh=>fh.Id==flightHotel.Id);
-                        foundedFlightHotel.HotelId = flightHotel.HotelId;
-                        foundedFlightHotel.Feed = flightHotel.Feed; 
-                        foundedFlightHotel.FlightId=flightHotel.FlightId;
-                        context.SaveChanges();
-                    }
-                    Error = false;
-                }
-                catch (Exception e)
+            try
+            {
+                using (var context = new DataBaseContext())
                 {
-                    Error = true;
-                    ErrorMessage = e.Message;
+                    var entity = await context.FlightHotels.FindAsync(flightHotel.Id);
+                    if (entity == null)
+                    {
+                        Error = true;
+                        ErrorMessage = "Flight Hotel not found";
+                        return;
+                    }
+
+                    entity.HotelId = flightHotel.HotelId;
+                    entity.Feed = flightHotel.Feed;
+                    entity.FlightId = flightHotel.FlightId;
+                    context.SaveChanges();
                 }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
-        public async Task<FlightHotelModel> GetFlightHotel(int id)
+        public async Task<FlightHotelModel> GetFlightHotel(int flightHotelId)
         {
-            var flightHotel = new FlightHotelModel();
-            await Task.Run( () =>
+
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        flightHotel = context.FlightHotels.Include("Hotel").Include("Flight").Where(fh => (fh.Id == id && fh.Flight.SeasonId == Configuration.CurrentSeason.Id)).FirstOrDefault();
-                    }
-                  
                     Error = false;
+                    return await context.FlightHotels.FindAsync(flightHotelId);
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return flightHotel;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
 
         public async Task<List<FlightHotelModel>> GetAllFlightHotels()
         {
-            List<FlightHotelModel> flightHotels = new();
-            await Task.Run( () =>
+
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        flightHotels = context.FlightHotels.Include("Hotel").Include("Flight").ToList();
-                    }
-                  
+                    var flightHotels = await context.FlightHotels
+                        .Include("Hotel")
+                        .Include("Flight")
+                        .ToListAsync()
+                        .ConfigureAwait(false);
                     Error = false;
+                    return flightHotels;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return flightHotels;
+
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
 
-        public async Task<List<FlightHotelModel>> GetFlightHotelsOfFlight(int id)
+        public async Task<List<FlightHotelModel>> GetFlightHotelsOfFlight(int flightId)
         {
-            List<FlightHotelModel> flightHotels = new();
-            await Task.Run(() =>
+
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        flightHotels = context.FlightHotels.Include("Hotel").Include("Flight").Where(fh => fh.FlightId == id).ToList();
-                    }
-                   
+                    var flightHotels = await context.FlightHotels
+                        .Include("Hotel")
+                        .Include("Flight")
+                        .Where(fh => fh.FlightId == flightId).ToListAsync()
+                        .ConfigureAwait(false);
                     Error = false;
+                    return flightHotels;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return flightHotels;
+
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
 
-        public async Task RemoveFlightHotel(FlightHotelModel flightHotel)
+        public async Task RemoveFlightHotel(int flightHotelId)
         {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    using (var context = new DataBaseContext())
-                    {
-                        if (!context.FlightHotels.Local.Contains(flightHotel))
-                        {
-                            context.FlightHotels.Attach(flightHotel);
-                        }
-                        context.FlightHotels.Remove(flightHotel);
-                        context.SaveChanges();
-                    }
-                    Error = false;
 
-                }
-                catch (Exception e)
+            try
+            {
+                using (var context = new DataBaseContext())
                 {
-                    Error = true;
-                    ErrorMessage = e.Message;
+                    var entity = await context.FlightHotels.FindAsync(flightHotelId);
+                    if (entity == null)
+                    {
+                        Error = true;
+                        ErrorMessage = "Flight Hotel not found";
+                        return;
+                    }
+                    context.FlightHotels.Remove(entity);
+                    await context.SaveChangesAsync();
                 }
-            });
+                Error = false;
+
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
     }
 }

@@ -522,7 +522,7 @@ namespace Airfare.ViewModels.DialogViewModels
                             await phoneServices.RemovePhone(PhonesList[i]);
                             PhonesList[i].Id = 0;
                         }
-                        await hostServices.RemoveHost(Host);
+                        await hostServices.RemoveHost(Host.Id);
                         await clientServices.RemoveClient(Client.Id);
                         Host.HotelRoom = null;
                         Host.Id = 0;
@@ -532,7 +532,7 @@ namespace Airfare.ViewModels.DialogViewModels
                 }
                 else
                 {
-                    await hostServices.RemoveHost(Host);
+                    await hostServices.RemoveHost(Host.Id);
                     await clientServices.RemoveClient(Client.Id);
                     Host.HotelRoom = null;
                     Host.Id = 0;
@@ -696,7 +696,7 @@ namespace Airfare.ViewModels.DialogViewModels
                                 await phoneServices.RemovePhone(PhonesList[i]);
                                 PhonesList[i].Id = 0;
                             }
-                            await hostServices.RemoveHost(Host);
+                            await hostServices.RemoveHost(Host.Id);
                             await clientServices.RemoveClient(Client.Id);
                             Host.HotelRoom = null;
                             Host.Id = 0;
@@ -706,7 +706,7 @@ namespace Airfare.ViewModels.DialogViewModels
                     }
                     else
                     {
-                        await hostServices.RemoveHost(Host);
+                        await hostServices.RemoveHost(Host.Id);
                         await clientServices.RemoveClient(Client.Id);
                         Host.HotelRoom = null;
                         Host.Id = 0;

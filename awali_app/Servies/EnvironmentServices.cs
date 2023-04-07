@@ -12,94 +12,98 @@ namespace Airfare.Servies
     {
         public async Task AddEnvironment(EnvironmentModel environment)
         {
-            await Task.Run(() =>
+            
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Environments.Add(environment);
-                        context.SaveChanges();
-                    }
-                    Error = false;
+                    context.Environments.Add(environment);
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
-        public async Task RemoveEnvironment(EnvironmentModel environment)
+        public async Task RemoveEnvironment(int environmentId)
         {
-            await Task.Run(() =>
+           
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Environments.FindAsync(environmentId);
+                    if (entity == null)
                     {
-                        if (!context.Environments.Local.Contains(environment))
-                        {
-                            context.Environments.Attach(environment);
-                        }
-                        context.Environments.Remove(environment);
-                        context.SaveChanges();
+                        Error = true;
+                        ErrorMessage = "Environment not found";
+                        return;
                     }
-                    Error = false;
+                    context.Environments.Remove(entity);
+                    await context.SaveChangesAsync();
+              
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
         public async Task UpdateEnvironment(EnvironmentModel environment)
         {
-            await Task.Run(() =>
+           
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await  context.Environments.FindAsync(environment.Id);
+                    if (entity == null)
                     {
-                        var foundedEnvironment = context.Environments.ToList().Find(e => e.Id == environment.Id);
-                       
-                        foundedEnvironment.ClientContractContent = environment.ClientContractContent;
-                        foundedEnvironment.FooterSource = environment.FooterSource;
-                        foundedEnvironment.HeaderSource = environment.HeaderSource;
-                       
-                        context.SaveChanges();
+                        Error = true;
+                        ErrorMessage = "Environment not found";
+                        return;
                     }
-                    Error = false;
+                    entity.ClientContractContent = environment.ClientContractContent;
+                    entity.FooterSource = environment.FooterSource;
+                    entity.HeaderSource = environment.HeaderSource;
+                   
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+            }
         }
 
         public async Task<EnvironmentModel> GetEnvironment()
         {
-            var environment = new EnvironmentModel();
-            await Task.Run(() =>
+            
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        environment = context.Environments.FirstOrDefault();
-                    }
                     Error = false;
+                    return context.Environments.FirstOrDefault();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return environment;
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Error = true;
+                ErrorMessage = e.Message;
+                return null;
+            }
         }
     }
 }

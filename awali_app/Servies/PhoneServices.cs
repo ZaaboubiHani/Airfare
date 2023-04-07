@@ -2,109 +2,112 @@
 using Airfare.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Airfare.Servies
 {
-    public class PhoneServices: BaseServices
+    public class PhoneServices : BaseServices
     {
         public async Task AddPhone(PhoneModel phone)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Phones.Add(phone);
-                        context.SaveChanges();
-                    }
-                    
-                    Error = false;
-                    
+                    context.Phones.Add(phone);
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
 
         public async Task AddPhoneIfNotExist(PhoneModel phone)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var existinPhone = await context.Phones.FindAsync(phone.Id);
+                    if (existinPhone == null)
                     {
-                        var existinPhone = context.Phones.Where(p => p.Id == phone.Id).ToList().FirstOrDefault();
-                        if (existinPhone == null)
-                            context.Phones.Add(phone);
-                        context.SaveChanges();
+                        context.Phones.Add(phone);
+                        await context.SaveChangesAsync();
                     }
-                    
-                    Error = false;
+                }
 
-                }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
 
         public async Task RemovePhone(PhoneModel phone)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {if (!context.Phones.Local.Contains(phone))
-                        {
-                            context.Phones.Attach(phone);
-                        }
-                        context.Phones.Remove(phone);
-                        context.SaveChanges();
+                    var entity = await context.Phones.FindAsync(phone.Id);
+                    if (entity == null)
+                    {
+                        Error = true;
+                        ErrorMessage = "Phone not found";
+                        return;
                     }
-                     
-                    Error = false;
 
+                    context.Entry(entity).State = EntityState.Deleted;
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
+
+
 
         public async Task<List<PhoneModel>> GetPhonesOfClient(int clientId)
         {
-            var phones = new List<PhoneModel>();
-            await Task.Run(() =>
+
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        phones = context.Phones.Where(p => p.ClientId == clientId).ToList();
-                    }
-                    
+                    var phones = await context.Phones
+                        .Where(p => p.ClientId == clientId)
+                        .ToListAsync()
+                        .ConfigureAwait(false);
                     Error = false;
+                    return phones;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return phones;
+
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+                return null;
+            }
         }
     }
 }

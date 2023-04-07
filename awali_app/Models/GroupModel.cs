@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Airfare.Models
 {
     [Table("Groups")]
-    public class GroupModel : BaseViewModel
+    public class GroupModel : BaseViewModel,ICloneable
     {
         [Key]
         public int Id { get; set; }
@@ -41,5 +41,17 @@ namespace Airfare.Models
                 OnPropertyChanged(nameof(Spots));
             }
         }
+
+        public object Clone()
+        {
+            return new GroupModel
+            {
+                Id = this.Id,
+                Color = this.Color,
+                Selected = this.Selected,
+                Spots = this.Spots?.Select(s => (SpotModel)s.Clone()).ToList(),
+            };
+        }
+
     }
 }

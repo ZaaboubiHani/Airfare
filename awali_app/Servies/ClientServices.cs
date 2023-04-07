@@ -42,10 +42,12 @@ namespace Airfare.Servies
                     Error = true;
                     var errors = client.GetAllErrors();
                     ErrorMessage = errors.FirstOrDefault() ?? "Unknown error";
+                    return;
                 }
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -73,7 +75,7 @@ namespace Airfare.Servies
                 {
                     using (var context = new DataBaseContext())
                     {
-                        var entity = context.Clients.FirstOrDefault(c => c.Id == client.Id);
+                        var entity = await context.Clients.FindAsync(client.Id);
                         if (entity == null)
                         {
                             Error = true;
@@ -102,6 +104,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -119,16 +122,20 @@ namespace Airfare.Servies
                 using (var context = new DataBaseContext())
                 {
                     var entity = await context.Clients.FindAsync(clientId);
-                    if (entity != null)
+                    if (entity == null)
                     {
-                        context.Clients.Remove(entity);
-                        await context.SaveChangesAsync();
+                        Error = true;
+                        ErrorMessage = "Client not found";
+                        return;
                     }
+                    context.Clients.Remove(entity);
+                    await context.SaveChangesAsync();
                 }
                 Error = false;
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }

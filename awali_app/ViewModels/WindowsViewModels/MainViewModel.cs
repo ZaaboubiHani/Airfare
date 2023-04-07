@@ -35,8 +35,10 @@ namespace Airfare.ViewModels.WindowsViewModels
                 }
                 EnableFeatures = true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+
+                LogService.LogError(e.Message, this);
                 EnableFeatures = true;
                 Growl.Error("An error occurred while trying to get all the seaons in the main window");
             }

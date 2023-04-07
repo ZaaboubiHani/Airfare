@@ -129,18 +129,6 @@ namespace Airfare.ViewModels.UserControlViewModels
             }
         }
 
-        private bool _FlightClientsLoadingLine;
-
-        public bool FlightClientsLoadingLine
-        {
-            get { return _FlightClientsLoadingLine; }
-            set
-            {
-                _FlightClientsLoadingLine = value;
-                OnPropertyChanged(nameof(FlightClientsLoadingLine));
-            }
-        }
-
         private bool _HotelsLoadingLine;
 
         public bool HotelsLoadingLine
@@ -166,11 +154,7 @@ namespace Airfare.ViewModels.UserControlViewModels
             {
                 _SelectedFlight = value;
                 OnPropertyChanged(nameof(SelectedFlight));
-                if (SelectedFlight != null)
-                {
-                    ShowClients();
-                }
-         
+                GetClients();
 
             }
         }
@@ -247,27 +231,27 @@ namespace Airfare.ViewModels.UserControlViewModels
         }
 
       
-        private ICollectionView _SelectedHostsList;
+        private ICollectionView _HostsList;
 
-        public ICollectionView SelectedHostsList
+        public ICollectionView HostsList
         {
-            get { return _SelectedHostsList; }
+            get { return _HostsList; }
             set
             {
-                _SelectedHostsList = value;
-                OnPropertyChanged(nameof(SelectedHostsList));
+                _HostsList = value;
+                OnPropertyChanged(nameof(HostsList));
             }
         }
 
-        private ObservableCollection<FlightModel> _SelectedFlights;
+        private ICollectionView _FlightsList;
 
-        public ObservableCollection<FlightModel> SelectedFlights
+        public ICollectionView FlightsList
         {
-            get { return _SelectedFlights; }
+            get { return _FlightsList; }
             set
             {
-                _SelectedFlights = value;
-                OnPropertyChanged(nameof(SelectedFlights));
+                _FlightsList = value;
+                OnPropertyChanged(nameof(FlightsList));
             }
         }
 
@@ -292,15 +276,7 @@ namespace Airfare.ViewModels.UserControlViewModels
             {
                 _SelectedMonth = value;
                 OnPropertyChanged(nameof(SelectedMonth));
-                if (_SelectedMonth != null)
-                {
-                    SelectedFlights.Clear();
-                    SelectedFlights = new(FlightsList.Where(f => f.DepartDate.ToString("MMMM", new CultureInfo("ar-DZ")) == SelectedMonth));
-                }
-                else
-                {
-                    SelectedFlights.Clear();
-                }
+                _FlightsList.Refresh();
             }
         }
 
@@ -325,61 +301,7 @@ namespace Airfare.ViewModels.UserControlViewModels
             {
                 _OrderMethod = value;
                 OnPropertyChanged(nameof(OrderMethod));
-                if (SelectedFlight != null)
-                {
-                    FlightClientsLoadingLine = true;
-                    switch (_OrderMethod)
-                    {
-                        case 0:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.Client.LastName).OrderBy(h => h.Client.IsGuide));
-                           
-                            break;
-                        case 1:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.Client.FirstName).OrderBy(h => h.Client.IsGuide));
-                          
-                            break;
-                        case 2:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.Client.Gender).OrderBy(h => h.Client.IsGuide));
-                          
-                            break;
-                        case 3:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.Client.Feed).OrderBy(h => h.Client.IsGuide));
-                          
-                            break;
-                        case 4:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.FullPrice).OrderBy(h => h.Client.IsGuide));
-                          
-                            break;
-                        case 5:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.PaidPrice).OrderBy(h => h.Client.IsGuide));
-                           
-                            break;
-                        case 6:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.RemainingPrice).OrderBy(h => h.Client.IsGuide));
-                         
-                            break;
-                        case 7:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.HotelRoom.Room.Type).OrderBy(h => h.Client.IsGuide));
-                          
-                            break;
-                        case 8:
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.HotelRoom.FlightHotel.Hotel.Name).OrderBy(h => h.Client.IsGuide));
-                          
-                           
-                            break;
-                        default:
-                            
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(SelectedHostsList.Cast<HostModel>().OrderBy(host => host.Id).OrderBy(h => h.Client.IsGuide));
-                           
-                            
-                            break;
-                    }
-                    FlightClientsLoadingLine = false;
-                }
-                else
-                {
-                    Growl.Warning("لم تقم باختيار رحلة بعد");
-                }
+                ApplySorting();
 
             }
         }
@@ -489,15 +411,13 @@ namespace Airfare.ViewModels.UserControlViewModels
             {
                 _Filters = value;
                 OnPropertyChanged(nameof(Filters));
-                if (!loadinState)
-                    if (SelectedFlight != null)
-                    {
-                        ShowClients();
-                    }
-                    else
-                    {
-                        Growl.Warning("لم تقم باختيار رحلة بعد");
-                    }
+               
+                if (SelectedFlight != null && !loadinState)
+                {
+                    HostsList.Refresh();
+                    RecalculateStats();
+                }
+                   
             }
         }
 
@@ -600,7 +520,6 @@ namespace Airfare.ViewModels.UserControlViewModels
 
 
         public RoomModel[] Rooms { get; set; }
-        public FlightModel[] FlightsList { get; set; }
         public List<HotelRoomModel> HotelsRooms { get; set; }
         public List<HotelRoomModel> SelectedFlightHotelRooms { get; set; }
         private bool loadinState { get; set; }
@@ -621,7 +540,7 @@ namespace Airfare.ViewModels.UserControlViewModels
 
         #region Commads
         public RelayCommand ShowHotelDialogCommand { get; set; }
-        public RelayCommand ShowClientDialogCommand { get; set; }
+        public RelayCommand AddClientCommand { get; set; }
         public RelayCommand ShowRoomDialogCommand { get; set; }
         public RelayCommand AddFlightCommand { get; set; }
         public RelayCommand ShowFlightDialogCommand { get; set; }
@@ -638,7 +557,7 @@ namespace Airfare.ViewModels.UserControlViewModels
         public FlightViewModel()
         {
             InitCommands();
-            InitData();
+            Task.Run(() => InitData());
         }
 
         #region Methods
@@ -646,22 +565,26 @@ namespace Airfare.ViewModels.UserControlViewModels
         {
             try
             {
-                ShowHotelDialogCommand = new RelayCommand(ShowHotelDialog);
-                ShowClientDialogCommand = new RelayCommand(ShowClientDialog);
-                ShowRoomDialogCommand = new RelayCommand(ShowRoomDialog);
-                AddFlightCommand = new RelayCommand(AddFlight);
-                ShowFlightDialogCommand = new RelayCommand(ShowFlightDialog);
-                ExportExcelDataCommand = new RelayCommand(ExportExcelData);
-                ExportWordDataCommand = new RelayCommand(ExportWordData);
-                RemoveHostCommand = new RelayCommand(RemoveHost);
-                RemoveFlightCommand = new RelayCommand(RemoveFlight);
-                RemoveHotelCommand = new RelayCommand(RemoveHotel);
-                UpdateHotelCommand = new RelayCommand(UpdateHotel);
-                ImportExcelDataCommand = new RelayCommand(ImportExcelData);
-                ExportClientPaymentCommand = new RelayCommand(ExportClientPayment);
+                Parallel.Invoke(
+                    ()=>{ShowHotelDialogCommand = new RelayCommand(ShowHotelDialog);  },
+                    ()=>{AddClientCommand = new RelayCommand(AddClient);  },
+                    ()=>{ShowRoomDialogCommand = new RelayCommand(ShowRoomDialog);  },
+                    ()=>{AddFlightCommand = new RelayCommand(AddFlight);  },
+                    ()=>{ShowFlightDialogCommand = new RelayCommand(ShowFlightDialog);  },
+                    ()=>{ExportExcelDataCommand = new RelayCommand(ExportExcelData);  },
+                    ()=>{ExportWordDataCommand = new RelayCommand(ExportWordData);  },
+                    ()=>{RemoveHostCommand = new RelayCommand(RemoveHost);  },
+                    ()=>{RemoveFlightCommand = new RelayCommand(RemoveFlight);  },
+                    ()=>{RemoveHotelCommand = new RelayCommand(RemoveHotel);  },
+                    ()=>{UpdateHotelCommand = new RelayCommand(UpdateHotel);  },
+                    ()=>{ImportExcelDataCommand = new RelayCommand(ImportExcelData);  },
+                    ()=>{ ExportClientPaymentCommand = new RelayCommand(ExportClientPayment); }
+                 );
+                
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while InitCommands in flight");
             }
         
@@ -689,8 +612,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                
                 ExporContractLoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while exporting client payment");
             }
         }
@@ -716,8 +640,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 ImportDataLoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 ImportDataLoadingCircle = false;
                 Growl.Error("An error occurred while Import Data to flight");
             }
@@ -734,7 +659,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                     var res = await Dialog.Show<HotelDialog>().Initialize<HotelDialogViewModel>(vm =>
                     {
                         vm.UpdateMode = true;
-                        vm.Hotel = SelectedHotel.Copy();
+                        vm.Hotel = SelectedHotel.Clone() as HotelModel;
                        
 
                     }).GetResultAsync<HotelModel>();
@@ -745,13 +670,15 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 UpdateHotelLoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 UpdateHotelLoadingCircle = false;
                 Growl.Error("An error occurred while trying to update the hotel");
             }
           
         }
+        
 
         private async void RemoveHotel()
         {
@@ -763,7 +690,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                     bool result = await Dialog.Show<YesNoDialog>().Initialize<YesNoDialogViewModel>(vm => vm.Description = "هل أنت متأكد أنك تريد حذف هذا الفندق؟").GetResultAsync<bool>();
                     if (result)
                     {
-                        await hotelServices.RemoveHotel(SelectedHotel);
+                        await hotelServices.RemoveHotel(SelectedHotel.Id);
                         if (!hotelServices.Error)
                         {
                             InitData();
@@ -782,8 +709,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 RemoveHotelLoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 RemoveHotelLoadingCircle = false;
                 Growl.Error("An error occurred while trying to remove the hotel");
             }
@@ -798,7 +726,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                 bool result = await Dialog.Show<YesNoDialog>().Initialize<YesNoDialogViewModel>(vm => vm.Description = "هل أنت متأكد أنك تريد حذف هذه الرحلة؟").GetResultAsync<bool>();
                 if (result)
                 {
-                    await flightServices.RemoveFlight(SelectedFlight);
+                    await flightServices.RemoveFlight(SelectedFlight.Id);
                     if (!flightServices.Error)
                     {
                         InitData();
@@ -811,8 +739,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 DeleteFlightLoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 DeleteFlightLoadingCircle = false;
                 Growl.Error("An error occurred while trying to remove the flight");
             }
@@ -826,10 +755,14 @@ namespace Airfare.ViewModels.UserControlViewModels
                 bool result = await Dialog.Show<YesNoDialog>().Initialize<YesNoDialogViewModel>(vm => vm.Description = "هل أنت متأكد أنك تريد حذف هذا المعتمر؟").GetResultAsync<bool>();
                 if (result)
                 {
-                    await hostServices.RemoveHost(SelectedHost);
+                    ShowingClients = true;
+                    await hostServices.RemoveHost(SelectedHost.Id);
                     if (!hostServices.Error)
                     {
-                        ShowClients();
+                        var hosts = (List<HostModel>)HostsList.SourceCollection;
+                        hosts.Remove(SelectedHost);
+                        HostsList.Refresh();
+                        RecalculateStats();
                         Growl.Success("تم حذف المعتمر بنجاح");
                     }
                     else
@@ -838,10 +771,15 @@ namespace Airfare.ViewModels.UserControlViewModels
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while trying to remove this client");
+            }
+            finally
+            {
+                ShowingClients = false;
             }
             
         }
@@ -861,8 +799,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 ExporContractLoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 ExporContractLoadingCircle = false;
                 Growl.Error("An error occurred while trying to export client word data");
             }
@@ -877,22 +816,16 @@ namespace Airfare.ViewModels.UserControlViewModels
 
                 if (SelectedFlight != null)
                 {
-
-
-                    await exportationServices.ExportFlightExcelData(SelectedHostsList.Cast<HostModel>().ToList(), SelectedFlight, HostsTotal, AdultHostsTotal, INFHostsTotal, CHDHostsTotal);
+                    await exportationServices.ExportFlightExcelData(HostsList.Cast<HostModel>().ToList(), SelectedFlight, HostsTotal, AdultHostsTotal, INFHostsTotal, CHDHostsTotal);
                     if (exportationServices.Error)
                     {
                         Growl.Error("An error occurred while trying to export excel data");
                     }
-
                 }
                 else
                 {
                     Growl.Warning("لم تقم باختيار رحلة بعد");
                 }
-
-
-
                 ExportDataLoadingCircle = false;
             }
             catch (Exception)
@@ -906,281 +839,281 @@ namespace Airfare.ViewModels.UserControlViewModels
         {
             try
             {
-            
+                ShowingClients = true;
                 var flighthotels = await flightHotelServices.GetFlightHotelsOfFlight(SelectedFlight.Id);
                 var hotelsRooms = await hotelRoomServices.GetHotelsRoomsOfFlight(SelectedFlight.Id);
                 var companies = await companyServices.GetAllCompanies();
+                var host = SelectedHost.Clone() as HostModel;
                 var res = await Dialog.Show<ClientDialog>().Initialize<ClientDialogViewModel>(vm =>
                 {
                     vm.UpdateMode = true;
-                    vm.Client = SelectedHost.Client;
-                    vm.Host = SelectedHost;
-                    vm.PhonesList = new ObservableCollection<PhoneModel>(SelectedHost.Client.Phones ?? new());
-                    vm.PaymentsList = new ObservableCollection<PaymentModel>(SelectedHost.Payments ?? new());
-                    vm.Feed = SelectedHost.Client.Feed;
-                    vm.IsGuide = SelectedHost.Client.IsGuide;
-                    vm.RemainingPrice = SelectedHost.RemainingPrice;
-                    vm.Discount = SelectedHost.Discount;
-                    vm.PaidPrice = SelectedHost.PaidPrice;
+                    vm.Client = host.Client;
+                    vm.Host = host;
+                    vm.PhonesList = new ObservableCollection<PhoneModel>(host.Client.Phones ?? new());
+                    vm.PaymentsList = new ObservableCollection<PaymentModel>(host.Payments ?? new());
+                    vm.Feed = host.Client.Feed;
+                    vm.IsGuide = host.Client.IsGuide;
+                    vm.RemainingPrice = host.RemainingPrice;
+                    vm.Discount = host.Discount;
+                    vm.PaidPrice = host.PaidPrice;
                     vm.Rooms = Rooms.ToList();
                     vm.Companies = companies;
-                    vm.SelectedCompany = SelectedHost.Company;
-                    vm.hiddenCompanySelector = SelectedHost.Company;
-                    vm.SelectedRoom = SelectedHost.HotelRoom.Room;
+                    vm.SelectedCompany = host.Company;
+                    vm.hiddenCompanySelector = host.Company;
+                    vm.SelectedRoom = host.HotelRoom.Room;
                     vm.HotelsRooms = hotelsRooms;
                     vm.FlightHotels = flighthotels;
-                    vm.SelectedFlightHotel = SelectedHost.HotelRoom.FlightHotel;
+                    vm.SelectedFlightHotel = host.HotelRoom.FlightHotel;
                 }).GetResultAsync<HostModel>();
                 if (res != null)
                 {
-                    SelectedHost = res;
-                    if (string.IsNullOrEmpty(SelectedHostsList.Cast<HostModel>().Where(h => h.Id == res.Id).FirstOrDefault().Client.Color))
-                        SelectedHostsList.Cast<HostModel>().Where(h => h.Id == res.Id).FirstOrDefault().Client.Color = SelectedHostsList.Cast<HostModel>().Where(h => h.Id == res.Id).FirstOrDefault().HotelRoom.Room.Color;
+                    var hostslist = (List<HostModel>)HostsList.SourceCollection;
+                    if (string.IsNullOrEmpty(res.Client.Color))
+                        res.Client.Color = res.HotelRoom.Room.Color;
 
-                    ShowClients();
-                    OnPropertyChanged(nameof(SelectedHostsList));
+                    hostslist.UpdateValue(SelectedHost, res);
+                    HostsList.Refresh();
+                    RecalculateStats();
                 }
             
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while trying to update the client");
                 
             }
+            finally
+            {
+                ShowingClients = false;
+            }
             
         }
 
-        private async void ShowClients()
+        private async Task RecalculateStats()
+        {
+          
+            try
+            {
+                ShowingClients = true;
+         
+                if (SelectedFlight != null)
+                {
+                    FlightFuntionsButonsVisibility = true;
+
+                    // Convert the selected hosts list to an array
+                    var hostsList = HostsList.Cast<HostModel>().ToArray();
+         
+                    // Calculate the number of adult, child, and infant hosts
+                    AdultHostsTotal = hostsList.Count(h => (SelectedFlight.DepartDate - h.Client.BirthDate).TotalDays / 365.25 >= 12);
+                    CHDHostsTotal = hostsList.Count(h => (SelectedFlight.DepartDate - h.Client.BirthDate).TotalDays / 365.25 > 2 && (SelectedFlight.DepartDate - h.Client.BirthDate).TotalDays / 365.25 < 12);
+                    INFHostsTotal = hostsList.Count(h => (SelectedFlight.DepartDate - h.Client.BirthDate).TotalDays / 365.25 <= 2);
+         
+                    // Calculate the total prices
+                    FullPriceTotal = hostsList.Select(h => h.FullPrice).Sum();
+                    DiscountTotal = hostsList.Select(h => h.Discount).Sum();
+                    PaidPriceTotal = hostsList.Select(h => h.PaidPrice).Sum();
+                    RemainingPriceTotal = hostsList.Select(h => h.RemainingPrice).Sum();
+         
+                    // Set the total number of hosts
+                    HostsTotal = hostsList.Count();
+         
+                    // Hide the flight client loading line
+                    
+                }
+         
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Growl.Error("An error occurred while trying to execute GetClients Function");
+            }
+            finally
+            {
+                ShowingClients = false;
+            }
+        }
+
+        private async Task GetClients()
         {
             try
             {
-                await Task.Run( async() =>
+
+                ShowingClients = true;
+                if (SelectedFlight != null)
                 {
-                    ShowingClients = true;
-                    if (SelectedFlight != null)
+                    FlightFuntionsButonsVisibility = true;
+                    var hostsList = await hostServices.GetAllHostsOfFlight(SelectedFlight.Id);
+                    hostsList = hostsList.OrderBy(h => h.Id).OrderBy(h => h.Client.IsGuide).ToList();
+                    HostsList = CollectionViewSource.GetDefaultView(hostsList);
+                    HostsList.Filter = HostsListFilter;
+                    HostsList.Refresh();
+
+                    hostsList = (List<HostModel>)HostsList.SourceCollection;
+
+                    for (int i = 0; i < hostsList.Count; i++)
                     {
-                        FlightClientsLoadingLine = true;
-                        FlightFuntionsButonsVisibility = true;
 
-                        FullPriceTotal = 0;
-                        DiscountTotal = 0;
-                        PaidPriceTotal = 0;
-                        RemainingPriceTotal = 0;
-                        HostsTotal = 0;
-                        HostsTotal = 0;
-                        INFHostsTotal = 0;
-                        CHDHostsTotal = 0;
-                        AdultHostsTotal = 0;
-
-                        var hotelRoomModels = SelectedFlightHotelRooms.Where(sfhr => sfhr.FlightHotel.FlightId == SelectedFlight.Id).ToList();
-                        var hostsList = await hostServices.GetAllHostsOfFlight(SelectedFlight.Id);
-
-                        SelectedHostsList = CollectionViewSource.GetDefaultView(hostsList.OrderBy(h=>h.Id).OrderBy(h=>h.Client.IsGuide));
-                        if (Filters.Count > 0)
+                        if (string.IsNullOrEmpty(hostsList[i].Client.Color))
                         {
-                            SelectedHostsList.Filter = SelectedHostsListFilter;
-                            SelectedHostsList.Refresh();
-
+                            hostsList[i].Client.Color = hostsList[i].HotelRoom.Room.Color;
                         }
-                        
-                        for (int i = 0; i < SelectedHostsList.Cast<HostModel>().ToList().Count; i++)
-                        {
-
-                            if (string.IsNullOrEmpty(SelectedHostsList.Cast<HostModel>().ToList()[i].Client.Color))
-                            {
-                                SelectedHostsList.Cast<HostModel>().ToList()[i].Client.Color = SelectedHostsList.Cast<HostModel>().ToList()[i].HotelRoom.Room.Color;
-                            }
-
-                            if (!SelectedHostsList.Cast<HostModel>().ToList()[i].Client.IsGuide)
-                            {
-                                FullPriceTotal += SelectedHostsList.Cast<HostModel>().ToList()[i].FullPrice;
-                                DiscountTotal += SelectedHostsList.Cast<HostModel>().ToList()[i].Discount;
-                                PaidPriceTotal += SelectedHostsList.Cast<HostModel>().ToList()[i].PaidPrice;
-                                RemainingPriceTotal += SelectedHostsList.Cast<HostModel>().ToList()[i].RemainingPrice;
-                            }
-                            HostsTotal++;
-                            try
-                            {
-
-                                DateTime zeroTime = new DateTime(1, 1, 1);
-                                TimeSpan span = SelectedFlight.DepartDate - SelectedHostsList.Cast<HostModel>().ToList()[i].Client.BirthDate;
-                                int years = (zeroTime + span).Year - 1;
-
-
-                                if (years > 12)
-                                {
-                                    AdultHostsTotal++;
-                                }
-                                else if (years > 2)
-                                {
-                                    CHDHostsTotal++;
-                                }
-                                else
-                                {
-                                    INFHostsTotal++;
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Growl.Error("تاريخ ميلاد المعتمر رقم "+(i+1)+" غير معتاد");
-                            }
-
-                        }
-
-                        FlightClientsLoadingLine = false;
                     }
-                    else
-                    {
-                        SelectedHostsList = CollectionViewSource.GetDefaultView(new List<HostModel>());
-
-                        FlightFuntionsButonsVisibility = false;
-                        FullPriceTotal = 0;
-                        DiscountTotal = 0;
-                        PaidPriceTotal = 0;
-                        RemainingPriceTotal = 0;
-                        HostsTotal = 0;
-                        HostsTotal = 0;
-                        INFHostsTotal = 0;
-                        CHDHostsTotal = 0;
-                        AdultHostsTotal = 0;
-                    }
-                    ShowingClients = false;
-                });
+                    hostsList = HostsList.Cast<HostModel>().ToList();
+                    FullPriceTotal = hostsList.Select(h=>h.FullPrice).Sum();
+                    DiscountTotal = hostsList.Select(h => h.Discount).Sum();
+                    PaidPriceTotal = hostsList.Select(h => h.PaidPrice).Sum();
+                    RemainingPriceTotal = hostsList.Select(h => h.RemainingPrice).Sum();
+                    AdultHostsTotal = hostsList.Count(h => (SelectedFlight.DepartDate - h.Client.BirthDate).TotalDays / 365.25 >= 12);
+                    CHDHostsTotal = hostsList.Count(h => (SelectedFlight.DepartDate - h.Client.BirthDate).TotalDays / 365.25 > 2 && (SelectedFlight.DepartDate - h.Client.BirthDate).TotalDays / 365.25 < 12);
+                    INFHostsTotal = hostsList.Count(h => (SelectedFlight.DepartDate - h.Client.BirthDate).TotalDays / 365.25 <= 2);
+                    HostsTotal = hostsList.Count;
+                }
                
-            }
-            catch (Exception)
-            {
-                Growl.Error("An error occurred while trying to execute ShowClients Function");
                 
             }
-           
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Growl.Error("An error occurred while trying to execute ShowClients Function");
+            }
+            finally
+            {
+                ShowingClients = false;
+            }
         }
-
         private bool RoomFilter(HostModel host)
         {
-            var roomsTypes = Rooms.Select(r => r.Type).ToArray();
-            bool roomFilterExist = roomsTypes.Any(type => Filters.Contains("نوع الغرفة : " + type));
-
-
-            if (roomFilterExist)
-            {
-                for (int i = 0; i < Rooms.Length;i++)
-                {
-                    if (Filters.Contains("نوع الغرفة : " + Rooms[i].Type))
-                    {
-                        if (host.HotelRoom.RoomId == Rooms[i].Id)
-                            return true;
-                    }
-                }
-            }
-            else
+            // Get a list of rooms that match the selected room types in the filter.
+            var rooms = Rooms.Where(r => Filters.Contains("نوع الغرفة : " + r.Type)).ToList();
+            // If no room types are selected in the filter, include the host in the filtered list.
+            if (rooms.Count == 0)
             {
                 return true;
             }
-            return false;
+            // Check if the host's room matches any of the selected room types in the filter.
+            return rooms.Any(r => r.Id == host.HotelRoom.RoomId);
         }
 
+       
         private bool FeedFilter(HostModel host)
         {
-            bool feedFilterExist = false;
+            // Check if the filter exists for the feed
+            bool feedFilterExist = Filters.Contains("الاعاشة : موجودة") || Filters.Contains("الاعاشة : غير موجودة");
 
-            if (Filters.Contains("الاعاشة : موجودة") || Filters.Contains("الاعاشة : غير موجودة"))
-                feedFilterExist = true;
             if (feedFilterExist)
             {
+                // Check if the filter is set to "الاعاشة : موجودة"
                 if (Filters.Contains("الاعاشة : موجودة"))
                 {
-                    if (host.Client.Feed)
-                        return true;
+                    // Return true if the client has feed
+                    return host.Client.Feed;
                 }
                 else
                 {
-                    if (!host.Client.Feed)
-                        return true;
+                    // Return true if the client doesn't have feed
+                    return !host.Client.Feed;
                 }
             }
             else
             {
+                // If the filter doesn't exist, return true
                 return true;
             }
-            return false;
         }
 
+       
         private bool PaidFilter(HostModel host)
         {
-            bool paidFilterExist = false;
+            // Check if any paid filters exist
+            bool paidFilterExist = Filters.Contains("الدفع : مكتمل") || Filters.Contains("الدفع : غير مكتمل");
 
-            if (Filters.Contains("الدفع : مكتمل") || Filters.Contains("الدفع : غير مكتمل"))
-                paidFilterExist = true;
-            if (paidFilterExist)
-            {
-                if (Filters.Contains("الدفع : مكتمل"))
-                {
-                    if (host.IsPaid)
-                        return true;
-                }
-                else
-                {
-                    if (!host.IsPaid)
-                        return true;
-                }
-            }
-            else
+            // If no paid filters exist, return true
+            if (!paidFilterExist)
             {
                 return true;
             }
+
+            // Check if the paid filter is for "مكتمل"
+            if (Filters.Contains("الدفع : مكتمل"))
+            {
+                // If the host is paid, return true
+                if (host.IsPaid)
+                {
+                    return true;
+                }
+            }
+            // Otherwise, check if the paid filter is for "غير مكتمل"
+            else
+            {
+                // If the host is not paid, return true
+                if (!host.IsPaid)
+                {
+                    return true;
+                }
+            }
+
+            // If the host does not match the paid filter, return false
             return false;
         }
 
         private bool GenderFilter(HostModel host)
         {
-            bool genderFilterExist = false;
+            if (!Filters.Any(filter => filter.StartsWith("الجنس :")))
+                return true; // no gender filter exists
 
-            if (Filters.Contains("الجنس : ذكر") || Filters.Contains("الجنس : أنثى"))
-                genderFilterExist = true;
+            bool isMale = !host.Client.Gender; // assuming true for female and false for male
+            bool isMaleFilter = Filters.Contains("الجنس : ذكر");
+            bool isFemaleFilter = Filters.Contains("الجنس : أنثى");
 
-            if (genderFilterExist)
-            {
-                if (Filters.Contains("الجنس : ذكر"))
-                {
-                    if (!host.Client.Gender)
-                        return true;
-                }
-                else
-                {
-                    if (host.Client.Gender)
-                        return true;
-                }
-            }
+            if (isMaleFilter && isFemaleFilter)
+                return true; // both filters exist, so ignore gender filter
+            else if (isMaleFilter && isMale)
+                return true; // male filter exists and host is male
+            else if (isFemaleFilter && !isMale)
+                return true; // female filter exists and host is female
             else
-            {
-                return true;
-            }
-            return false;
+                return false; // gender filter exists but host doesn't match
         }
 
+       
         private bool HotelFilter(HostModel host)
         {
+            // Extract the names of the hotels from the HotelsList and store them in an array
             var hotelsNames = HotelsList.Select(h => h.Name).ToArray();
-            bool hotelFilterExist = hotelsNames.Any(name=> Filters.Contains("نوع الفندق : " + name));
 
+            // Check if any hotel names from the HotelsList are included in the Filters property
+            bool hotelFilterExist = hotelsNames.Any(name => Filters.Contains("نوع الفندق : " + name));
+
+            // If there is at least one matching hotel name, filter the HostModels based on whether they
+            // have a HotelModel with a matching Id in the HotelsList
             if (hotelFilterExist)
             {
+                // Loop through each HotelModel in the HotelsList
                 for (int i = 0; i < HotelsList.Count; i++)
                 {
+                    // If the current hotel name is included in the Filters property
                     if (Filters.Contains("نوع الفندق : " + HotelsList[i].Name))
                     {
+                        // Check if the HostModel has a HotelModel with the same Id as the current HotelModel
                         if (host.HotelRoom.FlightHotel.HotelId == HotelsList[i].Id)
+                        {
+                            // If so, return true to indicate that the HostModel should be included in the filter results
                             return true;
+                        }
                     }
                 }
             }
+            // If no matching hotel names are found in the Filters property, include all HostModels in the filter results
             else
             {
                 return true;
             }
+            // If the HostModel does not match the filter conditions, return false
             return false;
         }
+
+
 
         private async void ShowFlightDialog()
         {
@@ -1212,12 +1145,17 @@ namespace Airfare.ViewModels.UserControlViewModels
                 {
                     Growl.Warning("لم تقم باختيار رحلة بعد");
                 }
-                UpdateFlightLoadingCircle = false;
+               
             }
-            catch (Exception)
+            catch (Exception e)
+            {
+
+                LogService.LogError(e.Message, this);
+                Growl.Error("An error occurred while trying to display the flight dialog");
+            }
+            finally
             {
                 UpdateFlightLoadingCircle = false;
-                Growl.Error("An error occurred while trying to display the flight dialog");
             }
            
         }
@@ -1293,12 +1231,17 @@ namespace Airfare.ViewModels.UserControlViewModels
                     Growl.Warning("لم تقم بتحديد رحلة بعد");
                 }
 
-                AddFlightLoadingCircle = false;
+               
             }
-            catch (Exception)
+            catch (Exception e)
+            {
+
+                LogService.LogError(e.Message, this);
+                Growl.Error("An error occurred while trying to add a flight");
+            }
+            finally
             {
                 AddFlightLoadingCircle = false;
-                Growl.Error("An error occurred while trying to add a flight");
             }
             
         }
@@ -1325,19 +1268,23 @@ namespace Airfare.ViewModels.UserControlViewModels
                     SelectedFlightHotelsList = new ObservableCollection<FlightHotelModel>(flightHotels.ToList());
                     SelectedFlightHotel = selectedflighthotel;
                 }
-                AddRoomLoadingCircle = false;
+               
             }
-            catch (Exception)
+            catch (Exception e)
+            {
+
+                LogService.LogError(e.Message, this);
+                Growl.Error("An error occurred while trying to display the room dialog");
+            }
+            finally
             {
                 AddRoomLoadingCircle = false;
-                Growl.Error("An error occurred while trying to display the room dialog");
             }
            
         }
 
-        private async void ShowClientDialog()
+        private async void AddClient()
         {
-            
             try
             {
                 AddClientLoadingCircle = true;
@@ -1347,20 +1294,16 @@ namespace Airfare.ViewModels.UserControlViewModels
                     var hotelsRooms = await hotelRoomServices.GetHotelsRoomsOfFlight(SelectedFlight.Id);
                     if (hotelsRooms.Count > 0 && flighthotels.Count > 0)
                     {
-
-
                         var res = await Dialog.Show<ClientDialog>().Initialize<ClientDialogViewModel>(vm => { vm.FlightHotels = flighthotels; vm.Rooms = Rooms.ToList(); vm.HotelsRooms = hotelsRooms; }).GetResultAsync<HostModel>();
                         if (res != null)
                         {
-                            var hostslist = SelectedHostsList.Cast<HostModel>().ToList();
-                            hostslist.Add(res);
-                            ShowClients();
-                            if (string.IsNullOrEmpty(hostslist.Where(h => h.Id == res.Id).FirstOrDefault().Client.Color))
-                                hostslist.Where(h => h.Id == res.Id).FirstOrDefault().Client.Color = hostslist.Where(h => h.Id == res.Id).FirstOrDefault().HotelRoom.Room.Color;
+                            var hostslist = (List<HostModel>)HostsList.SourceCollection;
+                            if (string.IsNullOrEmpty(res.Client.Color))
+                                res.Client.Color = res.HotelRoom.Room.Color;
 
-                            Filters.Clear();
-                            SelectedHostsList = CollectionViewSource.GetDefaultView(hostslist);
-                            OnPropertyChanged(nameof(SelectedHostsList));
+                            hostslist.Add(res);
+                            HostsList.Refresh();
+                            RecalculateStats();
                         }
                     }
                     else
@@ -1372,14 +1315,18 @@ namespace Airfare.ViewModels.UserControlViewModels
                 {
                     Growl.Warning("لم تقم باختيار رحلة بعد");
                 }
-                AddClientLoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                AddClientLoadingCircle = false;
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while trying to display the client dialog");
             }
-           
+            finally
+            {
+                AddClientLoadingCircle = false;
+
+            }
+
         }
 
         private async void ShowHotelDialog()
@@ -1392,17 +1339,22 @@ namespace Airfare.ViewModels.UserControlViewModels
                 {
                     HotelsList.Add(res);
                 }
-                AddHotelLoadingCircle = false;
+                
             }
-            catch (Exception)
+            catch (Exception e)
+            {
+
+                LogService.LogError(e.Message, this);
+                Growl.Error("An error occurred while tring to display the hotel dialog");
+            }
+            finally
             {
                 AddHotelLoadingCircle = false;
-                Growl.Error("An error occurred while tring to display the hotel dialog");
             }
             
         }
 
-        private async void InitData()
+        private async Task InitData()
         {
             try 
             {
@@ -1414,8 +1366,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                 // making sure that the Configuration data is initiated
                 if(Configuration.CurrentSeason is null)
                 {
-                    var seasons = await seasonServices.GetAllSeasons();
-                    Configuration.CurrentSeason = seasons.Where(s => !s.HasEnded).ToList().FirstOrDefault();
+                    Configuration.CurrentSeason = await seasonServices.GetFirstActiveSeason();
                 }
                 // init flight
                 Flight = new() { SeasonId = Configuration.CurrentSeason.Id, DepartDate = DateTime.Now, ReturntDate = DateTime.Now, DepartTime = DateTime.Now.TimeOfDay, ReturnTime = DateTime.Now.TimeOfDay };
@@ -1424,10 +1375,11 @@ namespace Airfare.ViewModels.UserControlViewModels
                 HotelsList = new ObservableCollection<HotelModel>(await hotelServices.GetAllHotels());
 
                 // loading all the flights
-                FlightsList = (await flightServices.GetAllFlightsOfSeason(Configuration.CurrentSeason.Id)).ToArray();
-
+                var flights = await flightServices.GetAllFlightsOfSeason(Configuration.CurrentSeason.Id);
+                FlightsList = CollectionViewSource.GetDefaultView(flights);
+                FlightsList.Filter = FlightsListFilter;
                 // loading all the months
-                Months = new(FlightsList.Select(f => f.DepartDate.ToString("MMMM", new CultureInfo("ar-DZ"))).Distinct());
+                Months = new(flights.Select(f => f.DepartDate.ToString("MMMM", new CultureInfo("ar-DZ"))).Distinct());
               
                 // loading rooms
                 Rooms = (await roomServices.GetAllRooms()).ToArray();
@@ -1439,40 +1391,170 @@ namespace Airfare.ViewModels.UserControlViewModels
                 SelectedFlightHotelRooms = await hotelRoomServices.GetAllHotelsRooms();
 
                 // assgining the rest of the properties
-                SelectedFlights = new ObservableCollection<FlightModel>();
+               
                 SelectedFlightHotelsList = new ObservableCollection<FlightHotelModel>();
                 HotelsRooms = new List<HotelRoomModel>();
                 DisplayedHotelsRooms = new ObservableCollection<HotelRoomModel>();
-                SelectedHostsList = CollectionViewSource.GetDefaultView(new List<HostModel>());
-                SelectedHostsList.Filter = SelectedHostsListFilter;
+               
                 Filters = new();
-                
-                HotelsLoadingLine = false;
-                loadinState = false;
-                MonthsLoadingLine = false;
             }
-            catch (Exception)
+            catch (Exception e)
+            {
+
+                LogService.LogError(e.Message, this);
+                Growl.Error("An error occurred while trying to InitData in flight"); 
+            }
+            finally
             {
                 HotelsLoadingLine = false;
                 loadinState = false;
                 MonthsLoadingLine = false;
-                Growl.Error("An error occurred while trying to InitData in flight"); 
             }
     
         }
 
-        private bool SelectedHostsListFilter(object obj)
+        private bool FlightsListFilter(object obj)
         {
-            if(obj is HostModel host)
+            if (obj is FlightModel flight)
             {
-                return (GenderFilter(host) && FeedFilter(host) && RoomFilter(host) && HotelFilter(host) && PaidFilter(host)); 
+                return SelectedMonth != null ? flight.DepartDate.ToString("MMMM", new CultureInfo("ar-DZ")) == SelectedMonth : false;
             }
             return false;
         }
 
+        private bool HostsListFilter(object obj)
+        {
+            if(obj is HostModel host)
+            {
+                return SelectedFlight != null ? (GenderFilter(host) && FeedFilter(host) && RoomFilter(host) && HotelFilter(host) && PaidFilter(host)) : false; 
+            }
+            return false;
+        }
+        private async Task ApplySorting()
+        {
+            try
+            {
+                ShowingClients = true;
+
+                if (SelectedFlight == null)
+                {
+                    Growl.Warning("لم تقم باختيار رحلة بعد");
+                    return;
+                }
+
+                var sortedList = HostsList.Cast<HostModel>().OrderBy(h => h.Client.IsGuide);
+
+                switch (_OrderMethod)
+                {
+                    case 0:
+                        sortedList = sortedList.ThenBy(h => h.Client.LastName);
+                        break;
+                    case 1:
+                        sortedList = sortedList.ThenBy(h => h.Client.FirstName);
+                        break;
+                    case 2:
+                        sortedList = sortedList.ThenBy(h => h.Client.Gender);
+                        break;
+                    case 3:
+                        sortedList = sortedList.ThenBy(h => h.Client.Feed);
+                        break;
+                    case 4:
+                        sortedList = sortedList.ThenBy(h => h.FullPrice);
+                        break;
+                    case 5:
+                        sortedList = sortedList.ThenBy(h => h.PaidPrice);
+                        break;
+                    case 6:
+                        sortedList = sortedList.ThenBy(h => h.RemainingPrice);
+                        break;
+                    case 7:
+                        sortedList = sortedList.ThenBy(h => h.HotelRoom.Room.Type);
+                        break;
+                    case 8:
+                        sortedList = sortedList.ThenBy(h => h.HotelRoom.FlightHotel.Hotel.Name);
+                        break;
+                    default:
+                        sortedList = sortedList.ThenBy(h => h.Id);
+                        break;
+                }
+
+                HostsList = CollectionViewSource.GetDefaultView(sortedList);
+
+            }
+            catch (Exception e)
+            {
+                LogService.LogError(e.Message, this);
+                Growl.Error("An error occurred while trying to sort hosts list");
+            }
+            finally
+            {
+                ShowingClients = false;
+            }
+        }
+
+
+        //private async Task ApplySorting()
+        //{
+        //    try
+        //    {
+        //        ShowingClients = true;
+        //        if (SelectedFlight != null)
+        //        {
+        //            switch (_OrderMethod)
+        //            {
+        //                case 0:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.Client.LastName).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                case 1:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.Client.FirstName).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                case 2:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.Client.Gender).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                case 3:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.Client.Feed).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                case 4:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.FullPrice).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                case 5:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.PaidPrice).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                case 6:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.RemainingPrice).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                case 7:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.HotelRoom.Room.Type).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                case 8:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.HotelRoom.FlightHotel.Hotel.Name).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //                default:
+        //                    HostsList = CollectionViewSource.GetDefaultView(HostsList.Cast<HostModel>().OrderBy(host => host.Id).OrderBy(h => h.Client.IsGuide));
+        //                    break;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            Growl.Warning("لم تقم باختيار رحلة بعد");
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+
+        //        LogService.LogError(e.Message, this);
+        //        Growl.Error("An error occurred while trying to InitData in flight");
+        //    }
+        //    finally
+        //    {
+        //        ShowingClients = false;
+        //    }
+
+        //}
+
         public void Dispose()
         {
-            GC.Collect();
+           
         }
         #endregion
     }

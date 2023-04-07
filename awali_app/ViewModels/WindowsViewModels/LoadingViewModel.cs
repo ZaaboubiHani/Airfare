@@ -62,21 +62,43 @@ namespace Airfare.ViewModels.WindowsViewModels
 
                 // Check device compatibility
                 Information = "checking device compatibility";
-                var devices = await controlDeviceService.GetAllDevices();
+
                 string processorId = DeviceManagement.GetProcessorId();
                 string pcName = Environment.MachineName;
-                var currentDevice = devices.FirstOrDefault(d => d.DeviceId == processorId);
-                if (currentDevice is null)
+                var id = System.Configuration.ConfigurationManager.AppSettings["ID"];
+                if (string.IsNullOrEmpty(id))
+                {
+                    id = await controlDeviceService.UploadDevice(new ControlDeviceModel { DeviceId = processorId, ExpirationDate = DateTime.UtcNow.AddMonths(1), MachineName = pcName });
+                    if(string.IsNullOrEmpty(id))
+                    {
+                        var oConfig = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.None);
+                        oConfig.AppSettings.Settings["ID"].Value = id;
+                        oConfig.Save(System.Configuration.ConfigurationSaveMode.Full);
+                        System.Configuration.ConfigurationManager.RefreshSection("appSettings");
+                    }
+
+                }
+
+                var device = await controlDeviceService.GetDeviceById(id);
+                if (device is null)
                 {
                     await controlDeviceService.UploadDevice(new ControlDeviceModel { DeviceId = processorId, ExpirationDate = DateTime.UtcNow.AddMonths(1), MachineName = pcName });
+                    id = await controlDeviceService.UploadDevice(new ControlDeviceModel { DeviceId = processorId, ExpirationDate = DateTime.UtcNow.AddMonths(1), MachineName = pcName });
+                    if (string.IsNullOrEmpty(id))
+                    {
+                        var oConfig = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.None);
+                        oConfig.AppSettings.Settings["ID"].Value = id;
+                        oConfig.Save(System.Configuration.ConfigurationSaveMode.Full);
+                        System.Configuration.ConfigurationManager.RefreshSection("appSettings");
+                    }
                 }
 
                 // Update configuration settings based on device compatibility
                 Information = "Updating configuration settings based on device compatibility";
-                if (currentDevice != null)
+                if (device != null)
                 {
                     var oConfig = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.None);
-                    var isCompatible = (processorId == "BFEBFBFF000806EA" || processorId == "BFEBFBFF000306C3") && currentDevice.ExpirationDate.Date.CompareTo(DateTime.UtcNow.Date) > 0;
+                    var isCompatible = (processorId == "BFEBFBFF000806EA" || processorId == "BFEBFBFF000306C3") && device.ExpirationDate.Date.CompareTo(DateTime.UtcNow.Date) > 0;
                     oConfig.AppSettings.Settings["Accessibility"].Value = isCompatible ? "True" : "False";
                     oConfig.Save(System.Configuration.ConfigurationSaveMode.Full);
                     System.Configuration.ConfigurationManager.RefreshSection("appSettings");
@@ -102,6 +124,7 @@ namespace Airfare.ViewModels.WindowsViewModels
             catch (Exception e)
             {
                 // Show error message if initialization fails
+                LogService.LogError(e.Message, this);
                 HandleInitializationError();
                 Growl.ErrorGlobal(e.Message);
             }

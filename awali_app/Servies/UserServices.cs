@@ -2,6 +2,7 @@
 using Airfare.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,93 +13,90 @@ namespace Airfare.Servies
     {
         public async Task AddUser(UserModel user)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Users.Add(user);
-                        context.SaveChanges();
-                    }
+                    context.Users.Add(user);
+                    await context.SaveChangesAsync();
                     Error = false;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
-       
+
         public async Task UpdateUser(UserModel user)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Users.FindAsync(user.Id);
+                    if (entity == null)
                     {
-                        var foundedUser = context.Users.ToList().Find(u => u.Id == user.Id);
-                        foundedUser.Name = user.Name;
-                        foundedUser.Logo = user.Logo;
-                        foundedUser.KeepSigned = user.KeepSigned;
-
-                        context.SaveChanges();
+                        ErrorMessage = "User not found";
+                        Error = true;
+                        return;
                     }
+                    entity.Name = user.Name;
+                    entity.Logo = user.Logo;
+                    entity.KeepSigned = user.KeepSigned;
+                    await context.SaveChangesAsync();
                     Error = false;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
 
-     
         public async Task<List<UserModel>> GetAllUsers()
         {
-            var users = new List<UserModel>();
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        users = context.Users.ToList();
-                    }
+                    var users = await context.Users.ToListAsync().ConfigureAwait(false);
                     Error = false;
+                    return users;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return users;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+                return null;
+            }
         }
 
         public async Task<UserModel?> GetUser()
         {
-            UserModel user = null;
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        user = context.Users.Where(u=>u.IsAdmin).FirstOrDefault();
-                    }
+                    var user = await context.Users.FirstOrDefaultAsync(u => u.IsAdmin);
                     Error = false;
+                    return user;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return user;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+                return null;
+            }
         }
+
     }
 }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Airfare.Models
 {
     [Table("Spots")]
-    public class SpotModel:BaseViewModel
+    public class SpotModel:BaseViewModel,ICloneable
     {
         [Key]
         public int Id { get; set; }
@@ -96,5 +96,21 @@ namespace Airfare.Models
             }
         }
 
+        public object Clone()
+        {
+            return new SpotModel
+            {
+                Id = this.Id,
+                Number = this.Number,
+                Capacity = this.Capacity,
+                Color = this.Color,
+                IsEmpty = this.IsEmpty,
+                Taken = this.Taken,
+                Selected = this.Selected,
+                GroupId = this.GroupId,
+                Group = this.Group,
+                Hosts = this.Hosts
+            };
+        }
     }
 }

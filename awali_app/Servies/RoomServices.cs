@@ -2,132 +2,136 @@
 using Airfare.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Airfare.Servies
 {
-    public class RoomServices:BaseServices
+    public class RoomServices : BaseServices
     {
         public async Task AddRoom(RoomModel room)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        context.Rooms.Add(room);
-                        context.SaveChanges();
-                    }
-                    
-                    Error = false;
+                    context.Rooms.Add(room);
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
 
         public async Task UpdateRoom(RoomModel room)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Rooms.FindAsync(room.Id);
+                    if (entity == null)
                     {
-                        var foundedRoom = context.Rooms.ToList().Find(r=>r.Id==room.Id);
-                        foundedRoom.Capacity = room.Capacity;
-                        foundedRoom.Color = room.Color;
-                        foundedRoom.Type = room.Type;
-                        context.SaveChanges();
+                        ErrorMessage = "Room not found";
+                        Error = true;
+                        return;
                     }
-                    
-                    Error = false;
+
+                    entity.Capacity = room.Capacity;
+                    entity.Color = room.Color;
+                    entity.Type = room.Type;
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
 
         public async Task<RoomModel> GetRoom(int id)
         {
-            var room = new RoomModel();
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Rooms.FindAsync(id);
+                    if (entity == null)
                     {
-                        room = context.Rooms.Where(r => r.Id == id).FirstOrDefault();
+                        ErrorMessage = "Room not found";
+                        Error = true;
+                        return null;
                     }
-                    
                     Error = false;
+                    return entity;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return room;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+                return null;
+            }
         }
 
         public async Task<List<RoomModel>> GetAllRooms()
         {
-            var rooms = new List<RoomModel>();
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
-                    {
-                        rooms = context.Rooms.ToList();
-                    }
-                    
+                    var rooms = await context.Rooms.ToListAsync();
                     Error = false;
+                    return rooms;
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
-            return rooms;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+                return null;
+            }
         }
 
-        public async Task RemoveRoom(RoomModel room)
+        public async Task RemoveRoom(int roomId)
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using (var context = new DataBaseContext())
                 {
-                    using (var context = new DataBaseContext())
+                    var entity = await context.Rooms.FindAsync(roomId);
+                    if (entity == null)
                     {
-                        context.HotelsRooms.RemoveRange(context.HotelsRooms.Where(hr => hr.RoomId == room.Id).ToList());
-                        if (!context.Rooms.Local.Contains(room))
-                        {
-                            context.Rooms.Attach(room);
-                        }
-                        context.Rooms.Remove(room);
-                        context.SaveChanges();
+                        ErrorMessage = "Room not found";
+                        Error = true;
+                        return;
                     }
-                    
-                    Error = false;
+
+                    context.HotelsRooms.RemoveRange(context.HotelsRooms.Where(hr => hr.RoomId == roomId).ToList());
+                    context.Rooms.Remove(entity);
+                    await context.SaveChangesAsync();
                 }
-                catch (Exception e)
-                {
-                    Error = true;
-                    ErrorMessage = e.Message;
-                }
-            });
+                Error = false;
+            }
+            catch (Exception e)
+            {
+                Error = true;
+                ErrorMessage = e.Message;
+                LogService.LogError(e.Message, this);
+            }
         }
     }
+
 }

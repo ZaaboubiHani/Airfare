@@ -191,6 +191,8 @@ namespace Airfare.Servies
                 }
                 catch (Exception e)
                 {
+                    LogService.LogError(e.Message, this);
+
                     Growl.Error(e.Message);
                 }
             });
@@ -233,6 +235,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -347,6 +350,7 @@ namespace Airfare.Servies
                 }
                 catch (Exception e)
                 {
+                    LogService.LogError(e.Message, this);
                     Growl.Error(e.Message);
                 }
             });
@@ -388,6 +392,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -541,6 +546,7 @@ namespace Airfare.Servies
                 }
                 catch (Exception e)
                 {
+                    LogService.LogError(e.Message, this);
                     Growl.Error(e.Message);
                 }
             });
@@ -584,6 +590,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -752,6 +759,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -962,6 +970,7 @@ namespace Airfare.Servies
                 }
                 catch (Exception e)
                 {
+                    LogService.LogError(e.Message, this);
                     Growl.Error(e.Message);
                 }
             });
@@ -1005,6 +1014,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -1124,6 +1134,7 @@ namespace Airfare.Servies
                 }
                 catch (Exception e)
                 {
+                    LogService.LogError(e.Message, this);
                     Growl.Error(e.Message+errorindex.ToString()); 
                 }
             });
@@ -1166,6 +1177,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }

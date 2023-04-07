@@ -7,7 +7,7 @@ using System.Text;
 namespace Airfare.Models
 {
     [Table("Seasons")]
-    public class SeasonModel : BaseModel
+    public class SeasonModel : BaseModel,ICloneable
     {
         [Key]
         private int _id;
@@ -29,6 +29,19 @@ namespace Airfare.Models
         {
             return Name;
         }
+
+        public object Clone()
+        {
+            return new SeasonModel
+            {
+                Id = this.Id,
+                Name = this.Name,
+                StartDate = this.StartDate,
+                EndDate = this.EndDate,
+                HasEnded = this.HasEnded
+            };
+        }
+
     }
 }
 

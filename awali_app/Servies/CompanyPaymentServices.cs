@@ -32,6 +32,7 @@ namespace Airfare.Servies
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }
@@ -44,16 +45,21 @@ namespace Airfare.Servies
                 using (var context = new DataBaseContext())
                 {
                     var entity = await context.CompanyPayments.FindAsync(paymentId);
-                    if (entity != null)
+                    if (entity == null)
                     {
-                        context.CompanyPayments.Remove(entity);
-                        await context.SaveChangesAsync();
+                        Error = true;
+                        ErrorMessage = "Company Payment not found";
+                        return;
                     }
+                   
+                    context.CompanyPayments.Remove(entity);
+                    await context.SaveChangesAsync();
                 }
                 Error = false;
             }
             catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Error = true;
                 ErrorMessage = e.Message;
             }

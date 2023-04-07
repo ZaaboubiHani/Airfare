@@ -129,8 +129,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 LoadingLine = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while updating room");
             }
             
@@ -144,7 +145,7 @@ namespace Airfare.ViewModels.UserControlViewModels
                 bool res = await Dialog.Show<YesNoDialog>().Initialize<YesNoDialogViewModel>(vm => vm.Description = "هل أنت متأكد أنك تريد حذف هذه الغرفة؟").GetResultAsync<bool>();
                 if (res)
                 {
-                    await roomServices.RemoveRoom(SelectedRoom);
+                    await roomServices.RemoveRoom(SelectedRoom.Id);
                     if (!roomServices.Error)
                     {
                         InitData();
@@ -157,8 +158,9 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 LoadingLine = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while removing room");
             }
            
@@ -195,14 +197,15 @@ namespace Airfare.ViewModels.UserControlViewModels
                 }
                 LoadingCircle = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while adding room");
             }
             
         }
 
-        private async void InitData()
+        private async Task InitData()
         {
             try
             {
@@ -215,15 +218,15 @@ namespace Airfare.ViewModels.UserControlViewModels
                 RoomsList = new ObservableCollection<RoomModel>(await roomServices.GetAllRooms());
                 LoadingLine = false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                LogService.LogError(e.Message, this);
                 Growl.Error("An error occurred while InitData in room");
             }
            
         }
         public void Dispose()
         {
-            GC.Collect();
         }
         #endregion
     }

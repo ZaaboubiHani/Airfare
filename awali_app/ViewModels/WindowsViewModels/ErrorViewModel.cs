@@ -39,12 +39,12 @@ namespace Airfare.ViewModels.WindowsViewModels
                 string serialNumber = DeviceManagement.GetSerialNumber();
                 if (!string.IsNullOrEmpty(processorId) && !string.IsNullOrEmpty(macAdress) && !string.IsNullOrEmpty(serialNumber))
                 {
-                    var folder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\";
-                    ErrorCode = "706179206d65";
+                    var folder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\Logs\\";
+                    ErrorCode = "45787069726564";
                     string fileName = "ErrorCode.txt";
                     string fullPath = folder + fileName;
                     string[] authors = { macAdress, processorId, serialNumber };
-                    File.WriteAllLines(fullPath, authors);
+                    File.AppendAllLines(fullPath, authors);
                 }
             }
             catch (Exception)

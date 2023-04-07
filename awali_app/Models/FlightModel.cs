@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Airfare.Models
 {
     [Table("Flights")]
-    public class FlightModel: BaseViewModel
+    public class FlightModel: BaseViewModel,ICloneable
     {
         [Key]
         public int Id { get; set; }
@@ -48,6 +48,27 @@ namespace Airfare.Models
         {
             return DepartDate.Date.ToString("yyyy-MM-dd") + "/" + DepartName;
         }
+
+        public object Clone()
+        {
+            return new FlightModel
+            {
+                Id = this.Id,
+                DepartName = this.DepartName,
+                ReturnName = this.ReturnName,
+                Capacity = this.Capacity,
+                DepartItinerary = this.DepartItinerary,
+                ReturnItinerary = this.ReturnItinerary,
+                DepartDate = this.DepartDate,
+                DepartTime = this.DepartTime,
+                ReturntDate = this.ReturntDate,
+                ReturnTime = this.ReturnTime,
+                Category = this.Category,
+                SeasonId = this.SeasonId,
+                Season = (SeasonModel)this.Season?.Clone()
+            };
+        }
+
 
     }
 }
